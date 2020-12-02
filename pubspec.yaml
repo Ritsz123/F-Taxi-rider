@@ -32,6 +32,7 @@ dependencies:
   firebase_core: ^0.5.2+1
   firebase_auth: ^0.18.3+1
   firebase_database: ^4.3.0
+  connectivity: ^2.0.2
 
 
 

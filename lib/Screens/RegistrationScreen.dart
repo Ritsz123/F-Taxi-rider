@@ -1,37 +1,82 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/LoginScreen.dart';
+import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:uber_clone/widgets/taxiButton.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:connectivity/connectivity.dart';
 
-class RegistrationScreen extends StatelessWidget {
+class RegistrationScreen extends StatefulWidget {
   static const String id = "registrationScreen";
+
+  @override
+  _RegistrationScreenState createState() => _RegistrationScreenState();
+}
+
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
   var fullNameController = TextEditingController();
   var phoneController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+  bool isLoading = false;
+
+  void validateRegistration() async {
+//                        check network connection
+    var connResult = await Connectivity().checkConnectivity();
+    if (connResult != ConnectivityResult.mobile &&
+        connResult != ConnectivityResult.wifi) {
+      showSnackBar("No Internet connectivity");
+      return;
+    }
+    if (fullNameController.text.length < 5) {
+      showSnackBar("Please provide valid full name");
+    } else if (phoneController.text.length != 10) {
+      showSnackBar("Please provide valid phone number");
+    } else if (!emailController.text.contains('@')) {
+      showSnackBar("please provide valid email address");
+    } else if (passwordController.text.length < 6) {
+      showSnackBar("password length should be more than 6 characters");
+    } else {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => ProgressDialog(status: "Registering user...."),
+      );
+      registerUser();
+    }
+  }
 
   void registerUser() async {
+    User user;
     try {
-      User user = (await _auth.createUserWithEmailAndPassword(
+      user = (await _auth.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       ))
           .user;
-      if (user != null) {
-        print('Registration Successful');
-      }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
+      Navigator.pop(context);
+      showSnackBar(e.message);
+    }
+
+    if (user != null) {
+      print('User Registration Successful');
+      DatabaseReference newUserRef =
+          FirebaseDatabase.instance.reference().child('users/${user.uid}');
+//        prepare data to be saved in database
+      Map userMap = {
+        'fullname': fullNameController.text,
+        'email': emailController.text,
+        'phone': phoneController.text,
+      };
+      await newUserRef.set(userMap);
+//        take user to homepage
+      Navigator.pushNamedAndRemoveUntil(
+          context, HomeScreen.id, (route) => false);
     }
   }
 
@@ -140,21 +185,9 @@ class RegistrationScreen extends StatelessWidget {
                   ),
                   30.heightBox,
                   TaxiButton(
-                      onPressed: () {
-                        if (fullNameController.text.length < 5) {
-                          showSnackBar("Please provide valid full name");
-                        } else if (phoneController.text.length != 10) {
-                          showSnackBar("Please provide valid phone number");
-                        } else if (!emailController.text.contains('@')) {
-                          showSnackBar("please provide valid email address");
-                        } else if (passwordController.text.length < 6) {
-                          showSnackBar(
-                              "password length should be more than 6 characters");
-                        } else {
-                          registerUser();
-                        }
-                      },
-                      buttonText: "Register"),
+                    onPressed: validateRegistration,
+                    buttonText: "Register",
+                  ),
                 ],
               ).p20(),
               FlatButton(
