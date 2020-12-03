@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:uber_clone/Colors.dart';
+import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   double searchContainerHeight = (Platform.isIOS) ? 300 : 275;
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
@@ -29,6 +31,96 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Container(
+//        width: 250,
+        color: Colors.white,
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.all(0),
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/user_icon.png',
+                      height: 60,
+                      width: 60,
+                    ),
+                    35.widthBox,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        "Ritesh Khadse"
+                            .text
+                            .size(20)
+                            .fontFamily('Brand-Bold')
+                            .make(),
+                        "View Profile".text.make(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              MyDivider(),
+              10.heightBox,
+              ListTile(
+                leading: Icon(
+                  Icons.card_giftcard_outlined,
+                  size: kDrawerItemIconSize,
+                ),
+                title: Text(
+                  "Free Rides",
+                  style: kDrawerItemTextStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.credit_card_outlined,
+                  size: kDrawerItemIconSize,
+                ),
+                title: Text(
+                  "Payments",
+                  style: kDrawerItemTextStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.history,
+                  size: kDrawerItemIconSize,
+                ),
+                title: Text(
+                  "Ride History",
+                  style: kDrawerItemTextStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.contact_support_outlined,
+                  size: kDrawerItemIconSize,
+                ),
+                title: Text(
+                  "Support",
+                  style: kDrawerItemTextStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.info_outline,
+                  size: kDrawerItemIconSize,
+                ),
+                title: Text(
+                  "About",
+                  style: kDrawerItemTextStyle,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -44,6 +136,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   mapBottomPadding = (Platform.isIOS) ? 270 : 280;
                 });
               },
+            ),
+            //Menu button
+            Positioned(
+              top: (Platform.isIOS) ? 44 : 20,
+              left: 20,
+              child: GestureDetector(
+                onTap: () {
+                  _scaffoldKey.currentState.openDrawer();
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 0.5,
+                        offset: Offset(0.7, .07),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 20,
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
             ),
             Positioned(
               left: 0,
