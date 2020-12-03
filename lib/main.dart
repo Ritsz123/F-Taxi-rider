@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: RegistrationScreen.id,
+      initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => HomeScreen(),
         LoginScreen.id: (context) => LoginScreen(),

@@ -9,6 +9,8 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="uber_clone"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBGFnI2gX1UKFf3XWBo6uUGCE0HhxKzMlo"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
