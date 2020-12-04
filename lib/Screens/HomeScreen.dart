@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:uber_clone/Colors.dart';
+import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -20,6 +22,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
   double mapBottomPadding = 0;
+  Position currentPosition;
+
+  void setupPositionLocator() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+    currentPosition = position;
+    LatLng pos = LatLng(position.latitude, position.longitude);
+    CameraPosition cp = CameraPosition(
+      target: pos,
+      zoom: 16,
+    );
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(cp),
+    );
+    String address = await HelperMethods.findCoordinateAddress(position);
+    print(address);
+  }
 
   final CameraPosition _kLake = CameraPosition(
     bearing: 192.8334901395799,
@@ -125,8 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           children: [
             GoogleMap(
+              myLocationEnabled: true,
+              zoomGesturesEnabled: true,
+              zoomControlsEnabled: true,
               padding: EdgeInsets.only(bottom: mapBottomPadding),
-              myLocationButtonEnabled: true,
               mapType: MapType.terrain,
               initialCameraPosition: _kLake,
               onMapCreated: (GoogleMapController controller) {
@@ -135,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   mapBottomPadding = (Platform.isIOS) ? 270 : 280;
                 });
+                setupPositionLocator();
               },
             ),
             //Menu button
