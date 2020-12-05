@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
+import 'package:uber_clone/dataModels/placeSuggestion.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
+import 'package:uber_clone/globals.dart';
+import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -18,6 +21,23 @@ class _SearchScreenState extends State<SearchScreen> {
   void setDestinationFocus() {
     if (!focused) {
       FocusScope.of(context).requestFocus(focusDestination);
+    }
+  }
+
+  void getSearchSuggestions(String placeName) async {
+    if (placeName.length > 1) {
+      String url =
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$mapKeyGeoCode&sessiontoken=123254251&components=country:in";
+      var response = await RequestHelper.getRequest(url);
+      if (response == 'failed') {
+        return;
+      }
+      if (response['status'] == 'OK') {
+        var predictionJSON = response['predictions'];
+        var suggestionList = (predictionJSON as List)
+            .map((e) => PlaceSuggestion.fromJson(e))
+            .toList();
+      }
     }
   }
 
@@ -115,6 +135,9 @@ class _SearchScreenState extends State<SearchScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: TextField(
+                            onChanged: (value) {
+                              getSearchSuggestions(value);
+                            },
                             focusNode: focusDestination,
                             controller: destinationTextController,
                             decoration: InputDecoration(
