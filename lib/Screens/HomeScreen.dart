@@ -37,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
-    String address = await HelperMethods.findCoordinateAddress(position);
+    String address =
+        await HelperMethods.findCoordinateAddress(position, context);
     print(address);
   }
 
