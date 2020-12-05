@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:uber_clone/Colors.dart';
+import 'package:uber_clone/Screens/searchScreen.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
@@ -224,29 +225,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         .fontFamily('Brand-Bold')
                         .make(),
                     20.heightBox,
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5.0,
-                            spreadRadius: 0.5,
-                            offset: Offset(0.7, 0.7),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchScreen(),
                           ),
-                        ],
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 5.0,
+                              spreadRadius: 0.5,
+                              offset: Offset(0.7, 0.7),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search,
+                              color: Colors.blueAccent,
+                            ),
+                            10.widthBox,
+                            "Search Destination".text.make(),
+                          ],
+                        ).p12(),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.search,
-                            color: Colors.blueAccent,
-                          ),
-                          10.widthBox,
-                          "Search Destination".text.make(),
-                        ],
-                      ).p12(),
                     ),
                     22.heightBox,
                     Row(
