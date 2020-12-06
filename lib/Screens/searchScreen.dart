@@ -5,6 +5,8 @@ import 'package:uber_clone/dataModels/placeSuggestion.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
+import 'package:uber_clone/widgets/divider.dart';
+import 'package:uber_clone/widgets/suggestionTile.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   var destinationTextController = TextEditingController();
   var focusDestination = FocusNode();
   bool focused = false;
+  List<PlaceSuggestion> destinationSuggestionList = [];
 
   void setDestinationFocus() {
     if (!focused) {
@@ -34,9 +37,12 @@ class _SearchScreenState extends State<SearchScreen> {
       }
       if (response['status'] == 'OK') {
         var predictionJSON = response['predictions'];
-        var suggestionList = (predictionJSON as List)
+        var thisList = (predictionJSON as List)
             .map((e) => PlaceSuggestion.fromJson(e))
             .toList();
+        setState(() {
+          destinationSuggestionList = thisList;
+        });
       }
     }
   }
@@ -160,6 +166,20 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ).pOnly(top: 16, left: 16, right: 16, bottom: 25),
             ),
+            destinationSuggestionList.length > 0
+                ? ListView.separated(
+                    padding: EdgeInsets.all(0),
+                    itemBuilder: (context, index) {
+                      return SuggestionTile(
+                          suggestion: destinationSuggestionList[index]);
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        MyDivider(),
+                    itemCount: destinationSuggestionList.length,
+                    shrinkWrap: true,
+                    physics: ClampingScrollPhysics(),
+                  ).pSymmetric(v: 8, h: 16)
+                : Container()
           ],
         ),
       ),
