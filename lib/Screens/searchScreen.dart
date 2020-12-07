@@ -30,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void getSearchSuggestions(String placeName) async {
     if (placeName.length > 1) {
       String url =
-          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$mapKeyGeoCode&sessiontoken=123254251&components=country:in";
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$billingMapKey&sessiontoken=123254251&components=country:in";
       var response = await RequestHelper.getRequest(url);
       if (response == 'failed') {
         return;
