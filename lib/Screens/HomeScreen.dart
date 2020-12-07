@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
+import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
+import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController mapController;
   double mapBottomPadding = 0;
   Position currentPosition;
+  List<LatLng> polylineCoordinates = [];
+  Set<Polyline> _polylines = {};
 
   void setupPositionLocator() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -41,6 +47,57 @@ class _HomeScreenState extends State<HomeScreen> {
     String address =
         await HelperMethods.findCoordinateAddress(position, context);
     print(address);
+  }
+
+  Future<void> getDirection() async {
+    var pickUp =
+        Provider.of<AppData>(context, listen: false).getPickUpAddress();
+    var dest =
+        Provider.of<AppData>(context, listen: false).getDestinationAddress();
+    var pickUpLatLng = LatLng(pickUp.latitude, pickUp.longitude);
+    var destLatLng = LatLng(dest.latitude, dest.longitude);
+
+//    show loading
+    showDialog(
+      context: context,
+      builder: (context) => ProgressDialog(status: "Please wait..."),
+      barrierDismissible: false,
+    );
+
+    var thisDetails =
+        await HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng);
+//    dismiss loading
+    Navigator.pop(context);
+//    print('Encoded points: ${thisDetails.encodedPoints}');
+
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> results =
+        polylinePoints.decodePolyline(thisDetails.encodedPoints);
+
+//    clear previous points before adding new
+    polylineCoordinates.clear();
+
+    if (results.isNotEmpty) {
+//      loop to all points and convert them to latlng
+      results.forEach((PointLatLng p) {
+        polylineCoordinates.add(LatLng(p.latitude, p.longitude));
+      });
+      Polyline polyline = Polyline(
+        polylineId: PolylineId('polyId'),
+        color: Colors.deepPurple,
+        width: 5,
+        points: polylineCoordinates,
+        endCap: Cap.roundCap,
+        startCap: Cap.roundCap,
+        geodesic: true,
+      );
+//      clear previous line before adding new
+
+      _polylines.clear();
+      setState(() {
+        _polylines.add(polyline);
+      });
+    }
   }
 
   final CameraPosition _kLake = CameraPosition(
@@ -150,6 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
               myLocationEnabled: true,
               zoomGesturesEnabled: true,
               zoomControlsEnabled: true,
+              polylines: _polylines,
               padding: EdgeInsets.only(bottom: mapBottomPadding),
               mapType: MapType.terrain,
               initialCameraPosition: _kLake,
@@ -226,13 +284,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         .make(),
                     20.heightBox,
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        var screenResponse = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SearchScreen(),
-                          ),
+                              builder: (context) => SearchScreen()),
                         );
+                        if (screenResponse == 'getDirection') {
+                          await getDirection();
+                        }
                       },
                       child: Container(
                         decoration: BoxDecoration(

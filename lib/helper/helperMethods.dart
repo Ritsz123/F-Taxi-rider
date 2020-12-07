@@ -45,13 +45,13 @@ class HelperMethods {
     if (response['status'] == 'OK') {
       DirectionDetails directionDetails = DirectionDetails();
       directionDetails.distanceText =
-          response['routes'][0]['legs']['distance']['text'];
+          response['routes'][0]['legs'][0]['distance']['text'];
       directionDetails.distanceValue =
-          response['routes'][0]['legs']['distance']['value'];
+          response['routes'][0]['legs'][0]['distance']['value'];
       directionDetails.durationText =
-          response['routes'][0]['legs']['duration']['text'];
+          response['routes'][0]['legs'][0]['duration']['text'];
       directionDetails.durationValue =
-          response['routes'][0]['legs']['duration']['value'];
+          response['routes'][0]['legs'][0]['duration']['value'];
       directionDetails.encodedPoints =
           response['routes'][0]['overview_polyline']['points'];
       return directionDetails;

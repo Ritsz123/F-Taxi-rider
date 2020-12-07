@@ -2,16 +2,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:uber_clone/dataModels/address.dart';
 
 class AppData extends ChangeNotifier {
-  Address pickUpAddress;
-  Address destinationAddress;
+  Address _pickUpAddress;
+  Address _destinationAddress;
 
   void updateDestinationAddress(Address newAddress) {
-    destinationAddress = newAddress;
+    _destinationAddress = newAddress;
     notifyListeners();
   }
 
   void updatePickupAddress(Address newAddress) {
-    pickUpAddress = newAddress;
+    _pickUpAddress = newAddress;
     notifyListeners();
+  }
+
+  Address getPickUpAddress() {
+    return _pickUpAddress;
+  }
+
+  Address getDestinationAddress() {
+    return _destinationAddress;
   }
 }

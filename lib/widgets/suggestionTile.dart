@@ -39,8 +39,10 @@ class SuggestionTile extends StatelessWidget {
       thisPlace.longitude = response['result']['geometry']['location']['lng'];
       Provider.of<AppData>(context, listen: false)
           .updateDestinationAddress(thisPlace);
-      //update data in provider class
+//      update data in provider class
       print('Destination place: ${thisPlace.placeName}');
+//      close this screen
+      Navigator.pop(context, 'getDirection');
     }
   }
 
