@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
@@ -10,6 +11,7 @@ import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
+import 'package:uber_clone/widgets/taxiButton.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng);
 //    dismiss loading
     Navigator.pop(context);
+
 //    print('Encoded points: ${thisDetails.encodedPoints}');
 
     PolylinePoints polylinePoints = PolylinePoints();
@@ -93,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
         startCap: Cap.roundCap,
         geodesic: true,
       );
+
 //      clear previous line before adding new
 
       _polylines.clear();
@@ -101,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
 //     zoom out to see the complete polyline from source to destination
+
       LatLngBounds bounds;
       if (pickUpLatLng.latitude > destLatLng.latitude &&
           pickUpLatLng.longitude > destLatLng.longitude) {
@@ -120,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         bounds = LatLngBounds(southwest: pickUpLatLng, northeast: destLatLng);
       }
       mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
+
       Marker pickUpMarker = Marker(
         markerId: MarkerId('pickupMarker'),
         position: pickUpLatLng,
@@ -133,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         infoWindow: InfoWindow(title: dest.placeName, snippet: "Destination"),
       );
+
       setState(() {
         _markers.add(pickUpMarker);
         _markers.add(destMarker);
@@ -286,6 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             //Menu button
+            /// Drawer Icon
             Positioned(
               top: (Platform.isIOS) ? 44 : 20,
               left: 20,
@@ -316,6 +324,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+
+            /// search panel
             Positioned(
               left: 0,
               right: 0,
@@ -432,6 +442,85 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ).pSymmetric(h: 24, v: 18),
+              ),
+            ),
+
+            /// ride details
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 230,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 18,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      color: MyColors.colorAccent1,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/taxi.png',
+                            height: 70,
+                            width: 70,
+                          ),
+                          16.widthBox,
+                          Column(
+                            children: [
+                              "Taxi"
+                                  .text
+                                  .size(18)
+                                  .fontFamily('Brand-Bold')
+                                  .make(),
+                              "14 KM"
+                                  .text
+                                  .size(16)
+                                  .color(MyColors.colorTextLight)
+                                  .make(),
+                            ],
+                          ),
+                          Expanded(child: Container()),
+                          "₹ 500".text.size(18).fontFamily('Brand-Bold').make(),
+                        ],
+                      ).pSymmetric(h: 16),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.moneyBillAlt,
+                          size: 18,
+                          color: MyColors.colorTextLight,
+                        ),
+                        16.widthBox,
+                        DropdownButton(
+                          onChanged: (value) {},
+                          items: [
+                            DropdownMenuItem(child: "Cash".text.make()),
+                          ],
+                        ),
+                        5.widthBox,
+                      ],
+                    ).pSymmetric(h: 16),
+                    TaxiButton(onPressed: () {}, buttonText: 'Request cab')
+                        .pSymmetric(h: 16),
+                  ],
+                ).pSymmetric(v: 18),
               ),
             ),
           ],
