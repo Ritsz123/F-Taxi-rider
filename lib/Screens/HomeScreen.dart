@@ -30,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Position currentPosition;
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
+  Set<Marker> _markers = {};
+  Set<Circle> _circles = {};
 
   void setupPositionLocator() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -118,6 +120,46 @@ class _HomeScreenState extends State<HomeScreen> {
         bounds = LatLngBounds(southwest: pickUpLatLng, northeast: destLatLng);
       }
       mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
+      Marker pickUpMarker = Marker(
+        markerId: MarkerId('pickupMarker'),
+        position: pickUpLatLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        infoWindow: InfoWindow(title: pickUp.placeName, snippet: "My Location"),
+      );
+
+      Marker destMarker = Marker(
+        markerId: MarkerId('destMarker'),
+        position: destLatLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        infoWindow: InfoWindow(title: dest.placeName, snippet: "Destination"),
+      );
+      setState(() {
+        _markers.add(pickUpMarker);
+        _markers.add(destMarker);
+      });
+
+      Circle pickUpCircle = Circle(
+        circleId: CircleId('pickupCircle'),
+        fillColor: Colors.green,
+        strokeColor: Colors.green,
+        strokeWidth: 3,
+        radius: 12,
+        center: pickUpLatLng,
+      );
+
+      Circle destCircle = Circle(
+        circleId: CircleId('destCircle'),
+        fillColor: Colors.redAccent,
+        strokeColor: Colors.redAccent,
+        strokeWidth: 3,
+        radius: 12,
+        center: destLatLng,
+      );
+
+      setState(() {
+        _circles.add(pickUpCircle);
+        _circles.add(destCircle);
+      });
     }
   }
 
@@ -229,6 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
               zoomGesturesEnabled: true,
               zoomControlsEnabled: true,
               polylines: _polylines,
+              markers: _markers,
+              circles: _circles,
               padding: EdgeInsets.only(bottom: mapBottomPadding),
               mapType: MapType.terrain,
               initialCameraPosition: _kLake,
