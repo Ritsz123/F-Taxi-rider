@@ -8,6 +8,7 @@ import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
+import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
+  bool drawerCanOpen = true;
 
   DirectionDetails tripDirectionDetails;
 
@@ -45,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       searchContainerHeight = 0;
       rideDetailsContainerHeight = (Platform.isIOS) ? 225 : 235;
       mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+      drawerCanOpen = false;
     });
   }
 
@@ -187,12 +190,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  final CameraPosition _kLake = CameraPosition(
-    bearing: 192.8334901395799,
-    target: LatLng(37.43296265331129, -122.08832357078792),
-    tilt: 59.440717697143555,
-    zoom: 19.151926040649414,
-  );
+  void resetApp() {
+    polylineCoordinates.clear();
+    _polylines.clear();
+    _markers.clear();
+    _circles.clear();
+    rideDetailsContainerHeight = 0;
+    searchContainerHeight = (Platform.isIOS) ? 300 : 275;
+    mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+    drawerCanOpen = true;
+    setState(() {});
+    setupPositionLocator();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               circles: _circles,
               padding: EdgeInsets.only(bottom: mapBottomPadding),
               mapType: MapType.terrain,
-              initialCameraPosition: _kLake,
+              initialCameraPosition: googlePlex,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
                 mapController = controller;
@@ -316,7 +325,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               left: 20,
               child: GestureDetector(
                 onTap: () {
-                  _scaffoldKey.currentState.openDrawer();
+                  drawerCanOpen
+                      ? _scaffoldKey.currentState.openDrawer()
+                      : resetApp();
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -334,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     backgroundColor: Colors.white,
                     radius: 20,
                     child: Icon(
-                      Icons.menu,
+                      drawerCanOpen ? Icons.menu : Icons.close,
                       color: Colors.black87,
                     ),
                   ),
