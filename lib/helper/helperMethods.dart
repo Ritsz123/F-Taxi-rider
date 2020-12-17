@@ -56,5 +56,22 @@ class HelperMethods {
           response['routes'][0]['overview_polyline']['points'];
       return directionDetails;
     }
+    return null;
+  }
+
+  static int estimateFares(DirectionDetails details) {
+    // uber current rates
+    // base ₹47.00
+    //Per-minute ₹1.58
+    //Per Km ₹7.66
+    double baseFare = 47.0;
+    double _perKmFare = 7.0;
+    double _perMinuteFare = 1.0;
+    double distanceFare = (details.distanceValue / 1000) *
+        _perKmFare; //convert mts to kms & then calculate fare
+    double timeFare = (details.durationValue / 60) * _perMinuteFare;
+
+    double totalFare = baseFare + distanceFare + timeFare;
+    return totalFare.truncate();
   }
 }

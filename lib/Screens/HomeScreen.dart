@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
+import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/styles/styles.dart';
@@ -35,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
+
+  DirectionDetails tripDirectionDetails;
 
   void showRideDetailsPanel() async {
     await getDirection();
@@ -80,6 +83,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     var thisDetails =
         await HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng);
+    setState(() {
+      tripDirectionDetails = thisDetails;
+    });
+
 //    dismiss loading
     Navigator.pop(context);
 
@@ -507,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     .size(18)
                                     .fontFamily('Brand-Bold')
                                     .make(),
-                                "14 KM"
+                                "${tripDirectionDetails != null ? tripDirectionDetails.distanceText : ''}"
                                     .text
                                     .size(16)
                                     .color(MyColors.colorTextLight)
@@ -515,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ],
                             ),
                             Expanded(child: Container()),
-                            "₹ 500"
+                            "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails) : ''}"
                                 .text
                                 .size(18)
                                 .fontFamily('Brand-Bold')
