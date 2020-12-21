@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   double searchContainerHeight = (Platform.isIOS) ? 300 : 275;
   double rideDetailsContainerHeight = 0; //  (Platform.isIOS) ? 235 : 250;
+  double requestingRideContainerHeight = 0; //(Platform.isIOS) ? 220 : 190;
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
   double mapBottomPadding = 0;
@@ -49,6 +51,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       mapBottomPadding = (Platform.isIOS) ? 270 : 280;
       drawerCanOpen = false;
     });
+  }
+
+  void showRequestingRidePanel() {
+    rideDetailsContainerHeight = 0;
+    requestingRideContainerHeight = (Platform.isIOS) ? 220 : 190;
+    mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+    drawerCanOpen = false;
+    setState(() {});
   }
 
   void setupPositionLocator() async {
@@ -199,6 +209,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     searchContainerHeight = (Platform.isIOS) ? 300 : 275;
     mapBottomPadding = (Platform.isIOS) ? 270 : 280;
     drawerCanOpen = true;
+    requestingRideContainerHeight = 0;
     setState(() {});
     setupPositionLocator();
   }
@@ -532,7 +543,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     .make(),
                               ],
                             ),
-                            Expanded(child: Container()),
+                            Expanded(
+                              child: Container(),
+                            ),
                             "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails) : ''}"
                                 .text
                                 .size(18)
@@ -558,10 +571,81 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           5.widthBox,
                         ],
                       ).pSymmetric(h: 16),
-                      TaxiButton(onPressed: () {}, buttonText: 'Request cab')
-                          .pSymmetric(h: 16),
+                      TaxiButton(
+                        onPressed: () {
+                          showRequestingRidePanel();
+                        },
+                        buttonText: 'Request cab',
+                      ).pSymmetric(h: 16),
                     ],
                   ).pSymmetric(v: 18),
+                ),
+              ),
+            ),
+
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedSize(
+                vsync: this,
+                duration: Duration(milliseconds: 150),
+                curve: Curves.easeIn,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      topRight: Radius.circular(18),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 18,
+                        spreadRadius: 0.5,
+                        offset: Offset(0.7, 0.7),
+                      ),
+                    ],
+                  ),
+                  height: requestingRideContainerHeight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      10.heightBox,
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextLiquidFill(
+                          text: 'Requesting a ride...',
+                          waveColor: MyColors.colorTextSemiLight,
+                          boxBackgroundColor: Colors.white,
+                          textStyle: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          boxHeight: 40,
+                        ),
+                      ),
+                      20.heightBox,
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            width: 1,
+                            color: MyColors.colorLightGrayFair,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 25,
+                        ),
+                      ),
+                      10.heightBox,
+                      "Cancel Ride".text.make(),
+                    ],
+                  ).pSymmetric(h: 24, v: 18),
                 ),
               ),
             ),
