@@ -171,7 +171,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: EdgeInsets.all(0),
                     itemBuilder: (context, index) {
                       return SuggestionTile(
-                          suggestion: destinationSuggestionList[index]);
+                        suggestion: destinationSuggestionList[index],
+                      );
                     },
                     separatorBuilder: (BuildContext context, int index) =>
                         MyDivider(),

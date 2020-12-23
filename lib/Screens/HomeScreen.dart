@@ -233,24 +233,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Map pickupMap = {
       'latitude': pickup.latitude.toString(),
       'longitude': pickup.longitude.toString(),
+      'placeName': pickup.placeName,
+      'placeId': pickup.placeID,
     };
     Map destMap = {
       'latitude': dest.latitude.toString(),
       'longitude': dest.longitude.toString(),
+      'placeName': dest.placeName,
+      'placeId': dest.placeID,
     };
 
     Map rideMap = {
       'createdAt': DateTime.now().toString(),
       'riderName': currentUserInfo.fullName,
       'riderPhone': currentUserInfo.phone,
-      'pickupAddress': pickup.placeName,
-      'destinationAddress': dest.placeName,
-      'source': pickupMap,
-      'destination': destMap,
+      'pickupAddress': pickupMap,
+      'destinationAddress': destMap,
+//      'source': pickupMap,
+//      'destination': destMap,
       'paymentMethod': 'Cash',
       'driverId': 'waiting',
     };
     rideRef.set(rideMap);
+  }
+
+  void cancelRideRequestInDatabase() {
+    rideRef.remove();
+    resetApp();
   }
 
   @override
@@ -666,19 +675,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       20.heightBox,
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(
-                            width: 1,
-                            color: MyColors.colorLightGrayFair,
+                      GestureDetector(
+                        onTap: () {
+                          cancelRideRequestInDatabase();
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              width: 1,
+                              color: MyColors.colorLightGrayFair,
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          Icons.close,
-                          size: 25,
+                          child: Icon(
+                            Icons.close,
+                            size: 25,
+                          ),
                         ),
                       ),
                       10.heightBox,
