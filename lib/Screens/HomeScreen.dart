@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -40,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
   bool drawerCanOpen = true;
+  DatabaseReference rideRef;
 
   DirectionDetails tripDirectionDetails;
 
@@ -59,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     mapBottomPadding = (Platform.isIOS) ? 270 : 280;
     drawerCanOpen = false;
     setState(() {});
+    createRideRequestToDatabase();
   }
 
   void setupPositionLocator() async {
@@ -218,6 +221,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     HelperMethods.getCurrentUserInfo();
+  }
+
+  void createRideRequestToDatabase() {
+    rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
+    var pickup =
+        Provider.of<AppData>(context, listen: false).getPickUpAddress();
+    var dest =
+        Provider.of<AppData>(context, listen: false).getDestinationAddress();
+
+    Map pickupMap = {
+      'latitude': pickup.latitude.toString(),
+      'longitude': pickup.longitude.toString(),
+    };
+    Map destMap = {
+      'latitude': dest.latitude.toString(),
+      'longitude': dest.longitude.toString(),
+    };
+
+    Map rideMap = {
+      'createdAt': DateTime.now().toString(),
+      'riderName': currentUserInfo.fullName,
+      'riderPhone': currentUserInfo.phone,
+      'pickupAddress': pickup.placeName,
+      'destinationAddress': dest.placeName,
+      'source': pickupMap,
+      'destination': destMap,
+      'paymentMethod': 'Cash',
+      'driverId': 'waiting',
+    };
+    rideRef.set(rideMap);
   }
 
   @override
