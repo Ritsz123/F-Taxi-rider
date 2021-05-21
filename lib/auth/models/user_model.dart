@@ -4,18 +4,18 @@ import 'package:uber_clone/auth/entities/User.dart';
 
 class UserModel extends User {
   UserModel({
-    @required String id,
-    @required String name,
-    @required String email,
-    @required String mobile,
-    @required bool isActive,
+    required String? id,
+    required String? name,
+    required String? email,
+    required String? mobile,
+    required bool? isActive,
   }) : super(
-          id: id,
-          name: name,
-          mobile: mobile,
-          email: email,
-          isActive: isActive,
-        );
+        id: id,
+        name: name,
+        mobile: mobile,
+        email: email,
+        isActive: isActive,
+      );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -27,7 +27,7 @@ class UserModel extends User {
     );
   }
 
-  Map<String, dynamic> tojson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,

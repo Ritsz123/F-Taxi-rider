@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:uber_clone/auth/entities/User.dart';
 import 'package:uber_clone/auth/repository/auth_repository.dart';
 import 'package:uber_clone/core/error/error.dart';
@@ -23,8 +22,8 @@ class UserLoginParams extends Equatable {
   final String password;
 
   UserLoginParams({
-    @required this.email,
-    @required this.password,
+    required this.email,
+    required this.password,
   });
 
   @override

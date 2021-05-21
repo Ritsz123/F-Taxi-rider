@@ -50,7 +50,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     String address =
-        Provider.of<AppData>(context).getPickUpAddress().placeName ?? '';
+        Provider.of<AppData>(context).getPickUpAddress()!.placeName ?? '';
     pickupTextController.text = address;
     setDestinationFocus();
     return Scaffold(

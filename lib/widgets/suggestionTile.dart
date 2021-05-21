@@ -11,9 +11,9 @@ import 'package:velocity_x/velocity_x.dart';
 
 class SuggestionTile extends StatelessWidget {
   final PlaceSuggestion suggestion;
-  SuggestionTile({@required this.suggestion});
+  SuggestionTile({required this.suggestion});
 
-  getPlaceDetails(String placeID, context) async {
+  getPlaceDetails(String? placeID, context) async {
 //    show loading dialog
     showDialog(
       context: context,
@@ -66,13 +66,13 @@ class SuggestionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   8.heightBox,
-                  suggestion.mainText.text
+                  suggestion.mainText!.text
                       .overflow(TextOverflow.ellipsis)
                       .maxLines(2)
                       .size(16)
                       .make(),
                   2.heightBox,
-                  suggestion.secondaryText.text
+                  suggestion.secondaryText!.text
                       .size(12)
                       .overflow(TextOverflow.ellipsis)
                       .maxLines(2)
