@@ -4,7 +4,7 @@ import 'package:velocity_x/velocity_x.dart';
 class ProgressDialog extends StatelessWidget {
   final String status;
 
-  const ProgressDialog({Key key, @required this.status}) : super(key: key);
+  const ProgressDialog({Key? key, required this.status}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Dialog(

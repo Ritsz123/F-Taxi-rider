@@ -1,7 +1,7 @@
 class PlaceSuggestion {
-  String placeId;
-  String mainText;
-  String secondaryText;
+  String? placeId;
+  String? mainText;
+  String? secondaryText;
 
   PlaceSuggestion({
     this.mainText,

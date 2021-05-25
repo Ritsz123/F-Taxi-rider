@@ -17,5 +17,5 @@ final CameraPosition googlePlex = CameraPosition(
   zoom: 19.151926040649414,
 );
 
-User currentUser;
-UserModel currentUserInfo;
+User? currentUser;
+late UserModel currentUserInfo;

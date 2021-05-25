@@ -6,10 +6,10 @@ class DirectionDetails {
   String encodedPoints;
 
   DirectionDetails({
-    this.distanceText,
-    this.distanceValue,
-    this.durationText,
-    this.durationValue,
-    this.encodedPoints,
+    required this.distanceText,
+    required this.distanceValue,
+    required this.durationText,
+    required this.durationValue,
+    required this.encodedPoints,
   });
 }

@@ -51,7 +51,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void registerUser() async {
-    User user;
+    User? user;
     try {
       user = (await _auth.createUserWithEmailAndPassword(
         email: emailController.text,
@@ -60,7 +60,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .user;
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      showSnackBar(e.message);
+      showSnackBar(e.message!);
     }
 
     if (user != null) {
@@ -85,7 +85,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       elevation: 10,
       content: title.text.size(15).make(),
     );
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    scaffoldKey.currentState!.showSnackBar(snackBar);
   }
 
   @override

@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,9 +13,9 @@ import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 
 class HelperMethods {
-  static Future<String> findCoordinateAddress(
+  static Future<String?> findCoordinateAddress(
       Position position, context) async {
-    String placeAddress = "";
+    String? placeAddress = "";
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.mobile &&
         connectivityResult != ConnectivityResult.wifi) {
@@ -42,24 +41,31 @@ class HelperMethods {
     String url =
         "https://maps.googleapis.com/maps/api/directions/json?origin=${startPosition.latitude},${startPosition.longitude}&destination=${endPosition.latitude},${endPosition.longitude}&mode=driving&key=$billingMapKey";
     var response = await RequestHelper.getRequest(url);
-    if (response == 'failed') {
-      return null;
-    }
+
     if (response['status'] == 'OK') {
-      DirectionDetails directionDetails = DirectionDetails();
-      directionDetails.distanceText =
-          response['routes'][0]['legs'][0]['distance']['text'];
-      directionDetails.distanceValue =
-          response['routes'][0]['legs'][0]['distance']['value'];
-      directionDetails.durationText =
-          response['routes'][0]['legs'][0]['duration']['text'];
-      directionDetails.durationValue =
-          response['routes'][0]['legs'][0]['duration']['value'];
-      directionDetails.encodedPoints =
-          response['routes'][0]['overview_polyline']['points'];
+      String distanceText =
+      response['routes'][0]['legs'][0]['distance']['text'];
+      int distanceValue =
+      response['routes'][0]['legs'][0]['distance']['value'];
+      String durationText =
+      response['routes'][0]['legs'][0]['duration']['text'];
+      int durationValue =
+      response['routes'][0]['legs'][0]['duration']['value'];
+      String encodedPoints =
+      response['routes'][0]['overview_polyline']['points'];
+
+      DirectionDetails directionDetails = DirectionDetails(
+          distanceText: distanceText,
+          distanceValue: distanceValue,
+          durationText: durationText,
+          durationValue: durationValue,
+          encodedPoints: encodedPoints,
+      );
+
       return directionDetails;
+    }else {
+      throw Exception('Network Exception');
     }
-    return null;
   }
 
   static int estimateFares(DirectionDetails details) {
@@ -70,9 +76,9 @@ class HelperMethods {
     double baseFare = 47.0;
     double _perKmFare = 7.0;
     double _perMinuteFare = 1.0;
-    double distanceFare = (details.distanceValue / 1000) *
+    double distanceFare = (details.distanceValue/ 1000) *
         _perKmFare; //convert mts to kms & then calculate fare
-    double timeFare = (details.durationValue / 60) * _perMinuteFare;
+    double timeFare = (details.durationValue/ 60) * _perMinuteFare;
 
     double totalFare = baseFare + distanceFare + timeFare;
     return totalFare.truncate();
@@ -81,12 +87,12 @@ class HelperMethods {
   static void getCurrentUserInfo() async {
     //currentUser here is global variable
     currentUser = FirebaseAuth.instance.currentUser;
-    String uid = currentUser.uid;
+    String uid = currentUser!.uid;
 
     DatabaseReference userRef =
         FirebaseDatabase.instance.reference().child("users/$uid");
     userRef.once().then((DataSnapshot snapshot) {
-      if (snapshot != null && snapshot.value != null) {
+      if (snapshot.value != null) {
         //currentUserInfo is also global variable
         currentUserInfo = UserModel.fromSnapshot(snapshot);
         print("DEBUG:: ${currentUserInfo.fullName}");

@@ -33,17 +33,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   double rideDetailsContainerHeight = 0; //  (Platform.isIOS) ? 235 : 250;
   double requestingRideContainerHeight = 0; //(Platform.isIOS) ? 220 : 190;
   Completer<GoogleMapController> _controller = Completer();
-  GoogleMapController mapController;
+  late GoogleMapController mapController;
   double mapBottomPadding = 0;
-  Position currentPosition;
+  Position? currentPosition;
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
   bool drawerCanOpen = true;
-  DatabaseReference rideRef;
+  late DatabaseReference rideRef;
 
-  DirectionDetails tripDirectionDetails;
+  DirectionDetails? tripDirectionDetails;
 
   void showRideDetailsPanel() async {
     await getDirection();
@@ -77,18 +77,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
-    String address =
+    String? address =
         await HelperMethods.findCoordinateAddress(position, context);
     print(address);
   }
 
   Future<void> getDirection() async {
     var pickUp =
-        Provider.of<AppData>(context, listen: false).getPickUpAddress();
+        Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
     var dest =
-        Provider.of<AppData>(context, listen: false).getDestinationAddress();
-    var pickUpLatLng = LatLng(pickUp.latitude, pickUp.longitude);
-    var destLatLng = LatLng(dest.latitude, dest.longitude);
+        Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
+    var pickUpLatLng = LatLng(pickUp.latitude!, pickUp.longitude!);
+    var destLatLng = LatLng(dest.latitude!, dest.longitude!);
 
 //    show loading
     showDialog(
@@ -97,8 +97,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       barrierDismissible: false,
     );
 
-    var thisDetails =
-        await HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng);
+    DirectionDetails thisDetails =
+        await (HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng));
     setState(() {
       tripDirectionDetails = thisDetails;
     });
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 //    print('Encoded points: ${thisDetails.encodedPoints}');
 
     PolylinePoints polylinePoints = PolylinePoints();
-    List<PointLatLng> results =
+    List<PointLatLng>? results =
         polylinePoints.decodePolyline(thisDetails.encodedPoints);
 
 //    clear previous points before adding new
@@ -226,9 +226,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void createRideRequestToDatabase() {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
     var pickup =
-        Provider.of<AppData>(context, listen: false).getPickUpAddress();
+        Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
     var dest =
-        Provider.of<AppData>(context, listen: false).getDestinationAddress();
+        Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
 
     Map pickupMap = {
       'latitude': pickup.latitude.toString(),
@@ -385,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: GestureDetector(
                 onTap: () {
                   drawerCanOpen
-                      ? _scaffoldKey.currentState.openDrawer()
+                      ? _scaffoldKey.currentState!.openDrawer()
                       : resetApp();
                 },
                 child: Container(
@@ -584,7 +584,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     .size(18)
                                     .fontFamily('Brand-Bold')
                                     .make(),
-                                "${tripDirectionDetails != null ? tripDirectionDetails.distanceText : ''}"
+                                "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}"
                                     .text
                                     .size(16)
                                     .color(MyColors.colorTextLight)
@@ -594,7 +594,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Expanded(
                               child: Container(),
                             ),
-                            "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails) : ''}"
+                            "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}"
                                 .text
                                 .size(18)
                                 .fontFamily('Brand-Bold')
@@ -611,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                           16.widthBox,
                           DropdownButton(
-                            onChanged: (value) {},
+                            onChanged: (dynamic value) {},
                             items: [
                               DropdownMenuItem(child: "Cash".text.make()),
                             ],

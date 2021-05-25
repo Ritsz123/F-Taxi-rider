@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       elevation: 10,
       content: title.text.size(15).make(),
     );
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    scaffoldKey.currentState!.showSnackBar(snackBar);
   }
 
   void validateLogin() async {
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void loginUser() async {
-    User user;
+    User? user;
     try {
       user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
           .user;
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      showSnackBar(e.message);
+      showSnackBar(e.message!);
     }
     if (user != null) {
 //      verify user data in db
