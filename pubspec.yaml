@@ -40,10 +40,7 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   font_awesome_flutter: ^9.0.0
   animated_text_kit: ^4.2.1
-
-  flutter_bloc: ^7.0.0
-  equatable: ^2.0.2
-  dartz: ^0.10.0-nullsafety.2
+  form_field_validator: ^1.1.0
 
 
 

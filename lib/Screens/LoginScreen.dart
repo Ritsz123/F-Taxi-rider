@@ -2,8 +2,10 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
+import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:uber_clone/widgets/taxiButton.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -16,13 +18,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  var emailController = TextEditingController();
-
-  var passwordController = TextEditingController();
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String _email = '';
+  String _password = '';
 
   void showSnackBar(String title) {
     final snackBar = SnackBar(
@@ -39,9 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
       showSnackBar("No Internet connectivity");
       return;
     }
-    if (!emailController.text.contains('@')) {
-      showSnackBar("Please enter valid email address");
-    } else if (passwordController.text.length < 6) {
+    if (_password.length < 6) {
       showSnackBar("please enter valid password");
     } else {
       showDialog(
@@ -57,8 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
     User? user;
     try {
       user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        email: _email,
+        password: _password,
       ))
           .user;
     } on FirebaseAuthException catch (e) {
@@ -98,48 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               20.heightBox,
               "Sign in as a rider"
-                  .text
-                  .size(25)
-                  .fontFamily('Brand-Bold')
-                  .make(),
+                  .text.size(25).fontFamily('Brand-Bold').make(),
               20.heightBox,
               Column(
                 children: [
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email Address',
-                      labelStyle: TextStyle(
-                        fontSize: 20,
-                      ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  10.heightBox,
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(
-                        fontSize: 20,
-                      ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
+                  _loginForm(),
                   40.heightBox,
                   TaxiButton(
                     onPressed: validateLogin,
@@ -147,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ).p20(),
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(
                       context, RegistrationScreen.id, (route) => false);
@@ -161,4 +123,32 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Widget _loginForm() {
+    return Column(
+      children: [
+        InputField(
+          onValueChange: (String value) {
+            _email = value;
+          },
+          keyboardType: TextInputType.emailAddress,
+          labelText: 'Email Address',
+          validator: MultiValidator([
+            RequiredValidator(errorText: 'Email is required'),
+            EmailValidator(errorText: 'Check Email Address')
+          ]),
+        ),
+        15.heightBox,
+        InputField(
+            onValueChange: (String value) {
+              _password = value;
+            },
+            obscureText: true,
+            labelText: 'Password',
+            validator: RequiredValidator(errorText: 'Password is required')
+        ),
+      ],
+    );
+  }
+
 }
