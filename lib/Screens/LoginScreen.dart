@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   _loginForm(),
                   40.heightBox,
                   TaxiButton(
-                    onPressed: validateLogin,
+                    onPressed: processLogin,
                     buttonText: "login",
                   ),
                 ],
@@ -98,30 +98,34 @@ class _LoginScreenState extends State<LoginScreen> {
     scaffoldKey.currentState!.showSnackBar(snackBar);
   }
 
-  void validateLogin() async {
+  Future<bool> _validateLoginForm() async {
     var connResult = await Connectivity().checkConnectivity();
     if (connResult != ConnectivityResult.mobile &&
         connResult != ConnectivityResult.wifi) {
       showSnackBar("No Internet connectivity");
-      return;
+      return false;
     }
+
     if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_email)){
       showSnackBar('Invalid email');
-      return;
+      return false;
     }else if (_password.length < 6) {
       showSnackBar("please enter valid password");
-      return;
-    } else {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) => ProgressDialog(status: "Logging you in..."),
-      );
-      loginUser();
+      return false;
     }
+    return true;
   }
 
-  void loginUser() async {
+  void processLogin() async {
+    bool isFormValid = await _validateLoginForm();
+    if(!isFormValid) return;
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => ProgressDialog(status: "Logging you in..."),
+    );
+
     User? user;
     try {
       user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
