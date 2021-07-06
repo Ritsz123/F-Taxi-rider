@@ -25,61 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
 
-  void showSnackBar(String title) {
-    final snackBar = SnackBar(
-      elevation: 10,
-      content: title.text.size(15).make(),
-    );
-    scaffoldKey.currentState!.showSnackBar(snackBar);
-  }
-
-  void validateLogin() async {
-    var connResult = await Connectivity().checkConnectivity();
-    if (connResult != ConnectivityResult.mobile &&
-        connResult != ConnectivityResult.wifi) {
-      showSnackBar("No Internet connectivity");
-      return;
-    }
-    if (_password.length < 6) {
-      showSnackBar("please enter valid password");
-    } else {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) => ProgressDialog(status: "Logging you in..."),
-      );
-      loginUser();
-    }
-  }
-
-  void loginUser() async {
-    User? user;
-    try {
-      user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      ))
-          .user;
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      showSnackBar(e.message!);
-    }
-    if (user != null) {
-//      verify user data in db
-      DatabaseReference userRef =
-          FirebaseDatabase.instance.reference().child('users/${user.uid}');
-      userRef.once().then(
-        (DataSnapshot snapshot) {
-          if (snapshot != null) {
-            print("User Logged in");
-            Navigator.pushNamedAndRemoveUntil(
-                context, HomeScreen.id, (route) => false);
-          }
-        },
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,15 +85,74 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         15.heightBox,
         InputField(
-            onValueChange: (String value) {
-              _password = value;
-            },
-            obscureText: true,
-            labelText: 'Password',
-            validator: RequiredValidator(errorText: 'Password is required')
+          onValueChange: (String value) {
+            _password = value;
+          },
+          obscureText: true,
+          labelText: 'Password',
+          validator: RequiredValidator(errorText: 'Password is required')
         ),
       ],
     );
+  }
+
+  void showSnackBar(String title) {
+    final snackBar = SnackBar(
+      elevation: 10,
+      content: title.text.size(15).make(),
+    );
+    scaffoldKey.currentState!.showSnackBar(snackBar);
+  }
+
+  void validateLogin() async {
+    var connResult = await Connectivity().checkConnectivity();
+    if (connResult != ConnectivityResult.mobile &&
+        connResult != ConnectivityResult.wifi) {
+      showSnackBar("No Internet connectivity");
+      return;
+    }
+    if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_email)){
+      showSnackBar('Invalid email');
+      return;
+    }else if (_password.length < 6) {
+      showSnackBar("please enter valid password");
+      return;
+    } else {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => ProgressDialog(status: "Logging you in..."),
+      );
+      loginUser();
+    }
+  }
+
+  void loginUser() async {
+    User? user;
+    try {
+      user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _email,
+        password: _password,
+      ))
+          .user;
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      showSnackBar(e.message!);
+    }
+    if (user != null) {
+//      verify user data in db
+      DatabaseReference userRef =
+      FirebaseDatabase.instance.reference().child('users/${user.uid}');
+      userRef.once().then(
+            (DataSnapshot snapshot) {
+          if (snapshot != null) {
+            print("User Logged in");
+            Navigator.pushNamedAndRemoveUntil(
+                context, HomeScreen.id, (route) => false);
+          }
+        },
+      );
+    }
   }
 
 }
