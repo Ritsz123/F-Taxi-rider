@@ -2,7 +2,6 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:form_field_validator/form_field_validator.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
 import 'package:uber_clone/widgets/inputField.dart';
@@ -78,10 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
           },
           keyboardType: TextInputType.emailAddress,
           labelText: 'Email Address',
-          validator: MultiValidator([
-            RequiredValidator(errorText: 'Email is required'),
-            EmailValidator(errorText: 'Check Email Address')
-          ]),
         ),
         15.heightBox,
         InputField(
@@ -90,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
           },
           obscureText: true,
           labelText: 'Password',
-          validator: RequiredValidator(errorText: 'Password is required')
         ),
       ],
     );

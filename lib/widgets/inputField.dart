@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
 
-  final FormFieldValidator<String>? validator;
   final String labelText;
   final ValueChanged<String> onValueChange;
   final TextInputType? keyboardType;
@@ -12,7 +11,6 @@ class InputField extends StatelessWidget {
     Key? key,
     required this.labelText,
     required this.onValueChange,
-    this.validator,
     this.keyboardType,
     this.obscureText = false
   }) : super(key: key);
@@ -23,9 +21,10 @@ class InputField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText ?? false,
       onChanged: onValueChange,
-      validator: validator ?? null,
       decoration: InputDecoration(
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
         labelText: labelText,
         labelStyle: TextStyle(
           fontSize: 20,
