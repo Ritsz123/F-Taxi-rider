@@ -143,8 +143,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         },
       );
 
-      UserModel currentUser = UserModel.fromJson(response);
-      print('User Registration Successful');
+      TODO:// cache the token
+
+      // UserModel currentUser = UserModel.fromJson(response);
+      // print('User Registration Successful');
 
       Navigator.pushNamedAndRemoveUntil(
           context, HomeScreen.id, (route) => false);

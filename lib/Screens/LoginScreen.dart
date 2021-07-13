@@ -1,13 +1,14 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
+import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:uber_clone/widgets/taxiButton.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
 
 class LoginScreen extends StatefulWidget {
   static const String id = "loginScreen";
@@ -126,30 +127,22 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context) => ProgressDialog(status: "Logging you in..."),
     );
 
-    User? user;
     try {
-      user = (await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      ))
-          .user;
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      showSnackBar(e.message!);
-    }
-    if (user != null) {
-//      verify user data in db
-      DatabaseReference userRef =
-      FirebaseDatabase.instance.reference().child('users/${user.uid}');
-      userRef.once().then(
-            (DataSnapshot snapshot) {
-          if (snapshot != null) {
-            print("User Logged in");
-            Navigator.pushNamedAndRemoveUntil(
-                context, HomeScreen.id, (route) => false);
-          }
+      Map<String, dynamic> response = await RequestHelper.postRequest(
+        url: serviceUrl.registerUser,
+        body: {
+          'email' : _email,
+          'password' : _password,
         },
       );
+
+      //TODO: cache token response
+
+      Navigator.pushNamedAndRemoveUntil(
+          context, HomeScreen.id, (route) => false);
+    } catch (e) {
+      Navigator.pop(context);
+      showSnackBar(e.toString());
     }
   }
 
