@@ -23,7 +23,7 @@ class SuggestionTile extends StatelessWidget {
 
     String url =
         "https://maps.googleapis.com/maps/api/place/details/json?placeid=$placeID&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url);
+    var response = await RequestHelper.getRequest(url: url);
 
 //    after request success remove loading dialog
     Navigator.pop(context);

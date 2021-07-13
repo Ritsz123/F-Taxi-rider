@@ -23,7 +23,7 @@ class HelperMethods {
     }
     String url =
         "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url);
+    var response = await RequestHelper.getRequest(url: url);
     if (response != 'Request Failed') {
       placeAddress = response['results'][0]['formatted_address'];
       Address pickUpAddress = new Address();
@@ -40,7 +40,7 @@ class HelperMethods {
       LatLng startPosition, LatLng endPosition) async {
     String url =
         "https://maps.googleapis.com/maps/api/directions/json?origin=${startPosition.latitude},${startPosition.longitude}&destination=${endPosition.latitude},${endPosition.longitude}&mode=driving&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url);
+    var response = await RequestHelper.getRequest(url: url);
 
     if (response['status'] == 'OK') {
       String distanceText =
@@ -86,17 +86,6 @@ class HelperMethods {
 
   static void getCurrentUserInfo() async {
     //currentUser here is global variable
-    currentUser = FirebaseAuth.instance.currentUser;
-    String uid = currentUser!.uid;
 
-    DatabaseReference userRef =
-        FirebaseDatabase.instance.reference().child("users/$uid");
-    userRef.once().then((DataSnapshot snapshot) {
-      if (snapshot.value != null) {
-        //currentUserInfo is also global variable
-        currentUserInfo = UserModel.fromSnapshot(snapshot);
-        print("DEBUG:: ${currentUserInfo.fullName}");
-      }
-    });
   }
 }

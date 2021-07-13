@@ -31,7 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (placeName.length > 1) {
       String url =
           "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$billingMapKey&sessiontoken=123254251&components=country:in";
-      var response = await RequestHelper.getRequest(url);
+      var response = await RequestHelper.getRequest(url: url);
       if (response == 'failed') {
         return;
       }

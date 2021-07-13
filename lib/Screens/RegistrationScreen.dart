@@ -1,13 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/LoginScreen.dart';
+import 'package:uber_clone/dataModels/userModel.dart';
+import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:uber_clone/widgets/taxiButton.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = "registrationScreen";
@@ -104,7 +106,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void validateRegistration() async {
-//                        check network connection
+// check network connection
     var connResult = await Connectivity().checkConnectivity();
     if (connResult != ConnectivityResult.mobile &&
         connResult != ConnectivityResult.wifi) {
@@ -130,32 +132,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void registerUser() async {
-    User? user;
     try {
-      user = (await _auth.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      ))
-          .user;
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      showSnackBar(e.message!);
-    }
+      Map<String, dynamic> response = await RequestHelper.postRequest(
+        url: serviceUrl.registerUser,
+        body: {
+          'name' : _name,
+          'email' : _email,
+          'phone' : _phone,
+          'password' : _password,
+        },
+      );
 
-    if (user != null) {
+      UserModel currentUser = UserModel.fromJson(response);
       print('User Registration Successful');
-      DatabaseReference newUserRef =
-      FirebaseDatabase.instance.reference().child('users/${user.uid}');
-//        prepare data to be saved in database
-      Map userMap = {
-        'fullname': _name,
-        'email': _email,
-        'phone': _phone,
-      };
-      await newUserRef.set(userMap);
-//        take user to homepage
+
       Navigator.pushNamedAndRemoveUntil(
           context, HomeScreen.id, (route) => false);
+
+    } catch (e) {
+      Navigator.pop(context);
+      showSnackBar(e.toString());
     }
   }
 
