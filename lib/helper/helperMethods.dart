@@ -1,13 +1,10 @@
 
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/dataModels/address.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
-import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
@@ -82,10 +79,5 @@ class HelperMethods {
 
     double totalFare = baseFare + distanceFare + timeFare;
     return totalFare.truncate();
-  }
-
-  static void getCurrentUserInfo() async {
-    //currentUser here is global variable
-
   }
 }

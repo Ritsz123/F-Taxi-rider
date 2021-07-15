@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AppData(),
       child: MaterialApp(
-        title: 'Uber clone',
+        title: 'F Taxi',
         theme: ThemeData(
           fontFamily: 'Brand-Regular',
           primarySwatch: Colors.blue,

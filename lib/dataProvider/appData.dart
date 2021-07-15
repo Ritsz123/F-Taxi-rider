@@ -1,16 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_clone/dataModels/address.dart';
+import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/globals.dart';
 
 class AppData extends ChangeNotifier {
   Address? _pickUpAddress;
   Address? _destinationAddress;
+  UserModel? _currentUser;
 
-  late SharedPreferences preferences;
+  late SharedPreferences _preferences;
 
-  initSharedPreferences() async {
-    preferences = await SharedPreferences.getInstance();
+  _initSharedPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
   }
 
   void updateDestinationAddress(Address newAddress) {
@@ -32,13 +34,13 @@ class AppData extends ChangeNotifier {
   }
 
   Future<bool> cacheAuthToken(String token) async {
-    await initSharedPreferences();
+    await _initSharedPreferences();
 
     logger.i('Caching auth token');
 
     bool success = false;
     try {
-       success = await preferences.setString('authToken', token);
+       success = await _preferences.setString('authToken', token);
     } catch(e) {
       logger.e(e);
       throw Exception('unable to cache token');
@@ -47,13 +49,13 @@ class AppData extends ChangeNotifier {
   }
 
   Future<String> getAccessToken() async {
-    await initSharedPreferences();
+    await _initSharedPreferences();
 
     logger.i('getting cached auth token');
 
     String? token;
     try {
-      token = preferences.getString('authToken');
+      token = _preferences.getString('authToken');
     } catch(e) {
       logger.e(e);
       throw Exception('unable to retrieve token');
@@ -66,4 +68,12 @@ class AppData extends ChangeNotifier {
     return token;
   }
 
+  UserModel? getCurrentUser() {
+    return _currentUser;
+  }
+
+  void setCurrentUser(UserModel userModel){
+    _currentUser = userModel;
+    notifyListeners();
+  }
 }

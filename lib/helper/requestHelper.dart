@@ -1,13 +1,23 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+import 'package:uber_clone/globals.dart';
 
 class RequestHelper {
   static final List _successResponseCodes = [200, 201, 202, 204, 206];
 
-  static Future<Map<String, dynamic>> getRequest({required String url}) async {
+  static Future<Map<String, dynamic>> getRequest({required String url, bool withAuthToken = false, String? token}) async {
     try {
-      http.Response response = await http.get(Uri.parse(url));
+      if(withAuthToken && token == null){
+        throw Exception('Token not provided for withAuthToken request');
+      }
+
+      http.Response response = await http.get(
+        Uri.parse(url),
+        headers: withAuthToken ? {
+          'bearer': token!
+        } : {}
+      );
+
       if (_successResponseCodes.contains(response.statusCode)) {
         // success
         String data = response.body;
@@ -17,15 +27,22 @@ class RequestHelper {
         throw Exception('request failed');
       }
     } catch (e) {
+      logger.e(e);
       throw Exception(e);
     }
   }
 
-  static Future<Map<String, dynamic>> postRequest({required String url, required Map<String, dynamic> body}) async {
+  static Future<Map<String, dynamic>> postRequest({required String url, required Map<String, dynamic> body, bool withAuthToken = false, String? token}) async {
     try {
+      if(withAuthToken && token == null){
+        throw Exception('Token not provided for withAuthToken request');
+      }
+
       http.Response response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: jsonEncode(body),
       );
 
@@ -38,6 +55,7 @@ class RequestHelper {
         throw Exception(response.statusCode);
       }
     } catch (e) {
+      logger.e(e);
       throw Exception(e);
     }
   }

@@ -9,9 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
+import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
+import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
@@ -20,6 +22,8 @@ import 'package:velocity_x/velocity_x.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
+
 
 class HomeScreen extends StatefulWidget {
   static const String id = "homeScreen";
@@ -220,7 +224,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    HelperMethods.getCurrentUserInfo();
+    getCurrentUserInfo();
+  }
+
+  void getCurrentUserInfo() async {
+    Map<String, dynamic> response = await RequestHelper.getRequest(url: serviceUrl.getUserData);
+
+    UserModel model = UserModel.fromJson(response['body']);
+
+    Provider.of<AppData>(context).setCurrentUser(model);
   }
 
   void createRideRequestToDatabase() {
