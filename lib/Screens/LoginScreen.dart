@@ -1,8 +1,10 @@
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
+import 'package:uber_clone/dataProvider/appData.dart';
+import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
@@ -19,16 +21,12 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   String _email = '';
   String _password = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -96,7 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
       elevation: 10,
       content: title.text.size(15).make(),
     );
-    scaffoldKey.currentState!.showSnackBar(snackBar);
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<bool> _validateLoginForm() async {
@@ -129,14 +128,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       Map<String, dynamic> response = await RequestHelper.postRequest(
-        url: serviceUrl.registerUser,
+        url: serviceUrl.loginUser,
         body: {
           'email' : _email,
           'password' : _password,
         },
       );
 
-      //TODO: cache token response
+      String token = response['body']['token'];
+      bool cached = await Provider.of<AppData>(context, listen: false).cacheAuthToken(token);
+      logger.i('catch status : $cached');
+      logger.i('Login Successful');
 
       Navigator.pushNamedAndRemoveUntil(
           context, HomeScreen.id, (route) => false);

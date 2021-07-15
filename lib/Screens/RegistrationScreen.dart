@@ -142,11 +142,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
 
       String token = response['body']['token'];
-
       bool cached = await Provider.of<AppData>(context, listen: false).cacheAuthToken(token);
-
       logger.i('catch status : $cached');
-
       logger.i('User Registration Successful');
 
       Navigator.pushNamedAndRemoveUntil(
