@@ -1,6 +1,7 @@
 //ritesh'account
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:uber_clone/dataModels/userModel.dart';
 
 String mapKey = "AIzaSyBGFnI2gX1UKFf3XWBo6uUGCE0HhxKzMlo";
@@ -16,6 +17,8 @@ final CameraPosition googlePlex = CameraPosition(
   tilt: 59.440717697143555,
   zoom: 19.151926040649414,
 );
+
+Logger logger = Logger();
 
 User? currentUser;
 late UserModel currentUserInfo;
