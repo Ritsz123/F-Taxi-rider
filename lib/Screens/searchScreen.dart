@@ -4,10 +4,12 @@ import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/dataModels/placeSuggestion.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
+import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:uber_clone/widgets/suggestionTile.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUtil;
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -20,6 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   var focusDestination = FocusNode();
   bool focused = false;
   List<PlaceSuggestion> destinationSuggestionList = [];
+  String? authToken;
 
   void setDestinationFocus() {
     if (!focused) {
@@ -28,21 +31,31 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void getSearchSuggestions(String placeName) async {
+    if(authToken == null){
+      authToken = await HelperMethods.getAccessToken();
+    }
+
     if (placeName.length > 1) {
-      String url =
-          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$billingMapKey&sessiontoken=123254251&components=country:in";
-      var response = await RequestHelper.getRequest(url: url);
-      if (response == 'failed') {
-        return;
-      }
-      if (response['status'] == 'OK') {
-        var predictionJSON = response['predictions'];
+      String url = serviceUtil.getPlaceSearchSuggestion + '?place=$placeName';
+
+      logger.i('making call for place suggestion');
+      try{
+        Map<String, dynamic> response = await RequestHelper.getRequest(
+          url: url,
+          withAuthToken: true,
+          token: authToken,
+        );
+
+        var predictionJSON = response['body']['predictions'];
         List<PlaceSuggestion> thisList = (predictionJSON as List)
-            .map((e) => PlaceSuggestion.fromJson(e))
-            .toList();
+          .map((e) => PlaceSuggestion.fromJson(e))
+          .toList();
+
         setState(() {
           destinationSuggestionList = thisList;
         });
+      } catch(e) {
+        logger.e(e);
       }
     }
   }

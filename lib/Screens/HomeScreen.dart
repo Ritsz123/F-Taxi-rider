@@ -617,8 +617,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       'riderPhone': currentUserInfo.phone,
       'pickupAddress': pickupMap,
       'destinationAddress': destMap,
-//      'source': pickupMap,
-//      'destination': destMap,
       'paymentMethod': 'Cash',
       'driverId': 'waiting',
     };
