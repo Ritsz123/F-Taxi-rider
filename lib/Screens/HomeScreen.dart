@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   double searchContainerHeight = (Platform.isIOS) ? 300 : 275;
   double rideDetailsContainerHeight = 0; //  (Platform.isIOS) ? 235 : 250;
   double requestingRideContainerHeight = 0; //(Platform.isIOS) ? 220 : 190;
-  Completer<GoogleMapController> _controller = Completer();
+  Completer<GoogleMapController> _completer = Completer();
   late GoogleMapController mapController;
   double mapBottomPadding = 0;
   Position? currentPosition;
@@ -81,10 +81,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               markers: _markers,
               circles: _circles,
               padding: EdgeInsets.only(bottom: mapBottomPadding),
-              mapType: MapType.terrain,
-              initialCameraPosition: googlePlex,
+              mapType: MapType.normal,
+              initialCameraPosition: india,
               onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
+                _completer.complete(controller);
                 mapController = controller;
                 setState(() {
                   mapBottomPadding = (Platform.isIOS) ? 270 : 280;
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             _rideDetails(),
 
            /// request ride panel
-            _requestRidePanel(),
+            _requestingRidePanel(),
           ],
         ),
       ),
@@ -351,8 +351,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+  void showRideDetailsPanel() async {
+    await getDirection();
+    setState(() {
+      searchContainerHeight = 0;
+      rideDetailsContainerHeight = (Platform.isIOS) ? 225 : 235;
+      mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+      drawerCanOpen = false;
+    });
+  }
 
-  Widget _requestRidePanel() {
+  Widget _requestingRidePanel() {
     return  Positioned(
       left: 0,
       right: 0,
@@ -425,17 +434,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-  void showRideDetailsPanel() async {
-    await getDirection();
-    setState(() {
-      searchContainerHeight = 0;
-      rideDetailsContainerHeight = (Platform.isIOS) ? 225 : 235;
-      mapBottomPadding = (Platform.isIOS) ? 270 : 280;
-      drawerCanOpen = false;
-    });
-  }
-
   void showRequestingRidePanel() {
     rideDetailsContainerHeight = 0;
     requestingRideContainerHeight = (Platform.isIOS) ? 220 : 190;
@@ -458,14 +456,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
-    String? address =
-        await HelperMethods.findCoordinateAddress(position, context);
-    print(address);
+    String? address = await HelperMethods.findCoordinateAddress(position, context);
+    logger.i('address: $address');
   }
 
   Future<void> getDirection() async {
-    Address pickUp = Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
-    Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
+    Address pickUp = Provider.of<AppData>(context, listen: false).getPickUpAddress();
+    Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
     LatLng pickUpLatLng = LatLng(pickUp.latitude!, pickUp.longitude!);
     LatLng destLatLng = LatLng(dest.latitude!, dest.longitude!);
 

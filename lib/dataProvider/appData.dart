@@ -5,8 +5,8 @@ import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/globals.dart';
 
 class AppData extends ChangeNotifier {
-  Address? _pickUpAddress;
-  Address? _destinationAddress;
+  late Address _pickUpAddress;
+  late Address _destinationAddress;
   UserModel? _currentUser;
 
   void updateDestinationAddress(Address newAddress) {
@@ -19,11 +19,11 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  Address? getPickUpAddress() {
+  Address getPickUpAddress() {
     return _pickUpAddress;
   }
 
-  Address? getDestinationAddress() {
+  Address getDestinationAddress() {
     return _destinationAddress;
   }
 

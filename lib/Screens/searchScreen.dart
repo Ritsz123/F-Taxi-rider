@@ -49,8 +49,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String address =
-        Provider.of<AppData>(context).getPickUpAddress()!.placeName ?? '';
+    String address = Provider.of<AppData>(context).getPickUpAddress().placeName ?? '';
     pickupTextController.text = address;
     setDestinationFocus();
     return Scaffold(
@@ -67,12 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         centerTitle: true,
-        title: "Set Destination"
-            .text
-            .black
-            .size(22)
-            .fontFamily('Brand-Bold')
-            .make(),
+        title: "Set Destination".text.black.size(22).fontFamily('Brand-Bold').make(),
       ),
       body: SafeArea(
         child: Column(

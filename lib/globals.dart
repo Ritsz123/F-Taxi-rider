@@ -11,11 +11,11 @@ String billingMapKey = "AIzaSyAx8ltyAvXjCgL9nPZaJRSlR5ZRwJ-j0So";
 
 //usually both these keys are same but as I am using another account for billing my keys are different
 
-final CameraPosition googlePlex = CameraPosition(
-  bearing: 192.8334901395799,
-  target: LatLng(37.43296265331129, -122.08832357078792),
-  tilt: 59.440717697143555,
-  zoom: 19.151926040649414,
+final CameraPosition india = CameraPosition(
+  bearing: 0,
+  target: LatLng(28.6139, 77.2090),
+  tilt: 0,
+  zoom: 3,
 );
 
 Logger logger = Logger();
