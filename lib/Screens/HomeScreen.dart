@@ -15,7 +15,7 @@ import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
-import 'package:uber_clone/styles/styles.dart';
+import 'package:uber_clone/widgets/MyDrawer.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:uber_clone/widgets/taxiButton.dart';
@@ -54,6 +54,376 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     getCurrentUserDetails();
+  }
+
+  void getCurrentUserDetails() async {
+    _authToken = await HelperMethods.getAccessToken();
+
+    var response = await RequestHelper.getRequest(url: serviceUrl.getUserData, withAuthToken: true, token: _authToken);
+    UserModel model = UserModel.fromJson(response['body']);
+    Provider.of<AppData>(context, listen: false).setCurrentUser(model);
+    logger.i('get user info success');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: MyDrawer(),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            GoogleMap(
+              myLocationEnabled: true,
+              zoomGesturesEnabled: true,
+              zoomControlsEnabled: true,
+              polylines: _polylines,
+              markers: _markers,
+              circles: _circles,
+              padding: EdgeInsets.only(bottom: mapBottomPadding),
+              mapType: MapType.terrain,
+              initialCameraPosition: googlePlex,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+                mapController = controller;
+                setState(() {
+                  mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+                });
+                setupPositionLocator();
+              },
+            ),
+            /// Drawer Icon
+            _drawerIcon(),
+
+            /// search panel
+            _searchPanel(),
+
+            /// ride details
+            _rideDetails(),
+
+           /// request ride panel
+            _requestRidePanel(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerIcon() {
+    return Positioned(
+      top: (Platform.isIOS) ? 44 : 20,
+      left: 20,
+      child: GestureDetector(
+        onTap: () {
+          drawerCanOpen
+              ? _scaffoldKey.currentState!.openDrawer()
+              : resetApp();
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 0.5,
+                offset: Offset(0.7, .07),
+              ),
+            ],
+          ),
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 20,
+            child: Icon(
+              drawerCanOpen ? Icons.menu : Icons.close,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _searchPanel() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: AnimatedSize(
+        vsync: this,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeIn,
+        child: Container(
+          height: searchContainerHeight,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 18,
+                spreadRadius: 0.5,
+                offset: Offset(0.7, 0.7),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              5.heightBox,
+              "Nice to see you".text.size(10).make(),
+              "Where are you going".text.size(18).fontFamily('Brand-Bold').make(),
+              20.heightBox,
+              GestureDetector(
+                onTap: () async {
+                  var screenResponse = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchScreen()),
+                  );
+                  if (screenResponse == 'getDirection') {
+                    showRideDetailsPanel();
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 5.0,
+                        spreadRadius: 0.5,
+                        offset: Offset(0.7, 0.7),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.search,
+                        color: Colors.blueAccent,
+                      ),
+                      10.widthBox,
+                      "Search Destination".text.make(),
+                    ],
+                  ).p12(),
+                ),
+              ),
+              22.heightBox,
+              Row(
+                children: [
+                  Icon(
+                    Icons.home_outlined,
+                    color: MyColors.colorDimText,
+                  ),
+                  12.widthBox,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      "Add Home".text.make(),
+                      3.heightBox,
+                      "Your residential Address".text.size(13).color(MyColors.colorDimText).make(),
+                    ],
+                  ),
+                ],
+              ),
+              10.heightBox,
+              MyDivider(),
+              16.heightBox,
+              Row(
+                children: [
+                  Icon(
+                    Icons.work_outlined,
+                    color: MyColors.colorDimText,
+                  ),
+                  12.widthBox,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      "Add Work".text.make(),
+                      3.heightBox,
+                      "Your office Address".text.size(13).color(MyColors.colorDimText).make(),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ).pSymmetric(h: 24, v: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _rideDetails() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: AnimatedSize(
+        vsync: this,
+        curve: Curves.easeIn,
+        duration: Duration(milliseconds: 150),
+        child: Container(
+          height: rideDetailsContainerHeight,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 18,
+                spreadRadius: 0.5,
+                offset: Offset(0.7, 0.7),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: double.infinity,
+                color: MyColors.colorAccent1,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/taxi.png',
+                      height: 70,
+                      width: 70,
+                    ),
+                    16.widthBox,
+                    Column(
+                      children: [
+                        "Taxi"
+                            .text
+                            .size(18)
+                            .fontFamily('Brand-Bold')
+                            .make(),
+                        "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}"
+                            .text
+                            .size(16)
+                            .color(MyColors.colorTextLight)
+                            .make(),
+                      ],
+                    ),
+                    Expanded(
+                      child: Container(),
+                    ),
+                    "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}"
+                        .text
+                        .size(18)
+                        .fontFamily('Brand-Bold')
+                        .make(),
+                  ],
+                ).pSymmetric(h: 16),
+              ),
+              Row(
+                children: [
+                  Icon(
+                    FontAwesomeIcons.moneyBillAlt,
+                    size: 18,
+                    color: MyColors.colorTextLight,
+                  ),
+                  16.widthBox,
+                  DropdownButton(
+                    onChanged: (dynamic value) {},
+                    items: [
+                      DropdownMenuItem(child: "Cash".text.make()),
+                    ],
+                  ),
+                  5.widthBox,
+                ],
+              ).pSymmetric(h: 16),
+              TaxiButton(
+                onPressed: () {
+                  showRequestingRidePanel();
+                },
+                buttonText: 'Request cab',
+              ).pSymmetric(h: 16),
+            ],
+          ).pSymmetric(v: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _requestRidePanel() {
+    return  Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: AnimatedSize(
+        vsync: this,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeIn,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 18,
+                spreadRadius: 0.5,
+                offset: Offset(0.7, 0.7),
+              ),
+            ],
+          ),
+          height: requestingRideContainerHeight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              10.heightBox,
+              SizedBox(
+                width: double.infinity,
+                child: TextLiquidFill(
+                  text: 'Requesting a ride...',
+                  waveColor: MyColors.colorTextSemiLight,
+                  boxBackgroundColor: Colors.white,
+                  textStyle: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  boxHeight: 40,
+                ),
+              ),
+              20.heightBox,
+              GestureDetector(
+                onTap: () {
+                  cancelRideRequestInDatabase();
+                },
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      width: 1,
+                      color: MyColors.colorLightGrayFair,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    size: 25,
+                  ),
+                ),
+              ),
+              10.heightBox,
+              "Cancel Ride".text.make(),
+            ],
+          ).pSymmetric(h: 24, v: 18),
+        ),
+      ),
+    );
   }
 
   void showRideDetailsPanel() async {
@@ -226,15 +596,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setupPositionLocator();
   }
 
-  void getCurrentUserDetails() async {
-    _authToken = await HelperMethods.getAccessToken();
-
-    var response = await RequestHelper.getRequest(url: serviceUrl.getUserData, withAuthToken: true, token: _authToken);
-    UserModel model = UserModel.fromJson(response['body']);
-    Provider.of<AppData>(context, listen: false).setCurrentUser(model);
-    logger.i('get user info success');
-  }
-
   void createRideRequestToDatabase() {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
     var pickup =
@@ -272,451 +633,5 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void cancelRideRequestInDatabase() {
     rideRef.remove();
     resetApp();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: Container(
-//        width: 250,
-        color: Colors.white,
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.all(0),
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/user_icon.png',
-                      height: 60,
-                      width: 60,
-                    ),
-                    35.widthBox,
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        "Ritesh Khadse"
-                            .text
-                            .size(20)
-                            .fontFamily('Brand-Bold')
-                            .make(),
-                        "View Profile".text.make(),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              MyDivider(),
-              10.heightBox,
-              ListTile(
-                leading: Icon(
-                  Icons.card_giftcard_outlined,
-                  size: kDrawerItemIconSize,
-                ),
-                title: Text(
-                  "Free Rides",
-                  style: kDrawerItemTextStyle,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.credit_card_outlined,
-                  size: kDrawerItemIconSize,
-                ),
-                title: Text(
-                  "Payments",
-                  style: kDrawerItemTextStyle,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.history,
-                  size: kDrawerItemIconSize,
-                ),
-                title: Text(
-                  "Ride History",
-                  style: kDrawerItemTextStyle,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.contact_support_outlined,
-                  size: kDrawerItemIconSize,
-                ),
-                title: Text(
-                  "Support",
-                  style: kDrawerItemTextStyle,
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.info_outline,
-                  size: kDrawerItemIconSize,
-                ),
-                title: Text(
-                  "About",
-                  style: kDrawerItemTextStyle,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            GoogleMap(
-              myLocationEnabled: true,
-              zoomGesturesEnabled: true,
-              zoomControlsEnabled: true,
-              polylines: _polylines,
-              markers: _markers,
-              circles: _circles,
-              padding: EdgeInsets.only(bottom: mapBottomPadding),
-              mapType: MapType.terrain,
-              initialCameraPosition: googlePlex,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-                mapController = controller;
-                setState(() {
-                  mapBottomPadding = (Platform.isIOS) ? 270 : 280;
-                });
-                setupPositionLocator();
-              },
-            ),
-            //Menu button
-            /// Drawer Icon
-            Positioned(
-              top: (Platform.isIOS) ? 44 : 20,
-              left: 20,
-              child: GestureDetector(
-                onTap: () {
-                  drawerCanOpen
-                      ? _scaffoldKey.currentState!.openDrawer()
-                      : resetApp();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 0.5,
-                        offset: Offset(0.7, .07),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 20,
-                    child: Icon(
-                      drawerCanOpen ? Icons.menu : Icons.close,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            /// search panel
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AnimatedSize(
-                vsync: this,
-                duration: Duration(milliseconds: 150),
-                curve: Curves.easeIn,
-                child: Container(
-                  height: searchContainerHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      topRight: Radius.circular(18),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 18,
-                        spreadRadius: 0.5,
-                        offset: Offset(0.7, 0.7),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      5.heightBox,
-                      "Nice to see you".text.size(10).make(),
-                      "Where are you going"
-                          .text
-                          .size(18)
-                          .fontFamily('Brand-Bold')
-                          .make(),
-                      20.heightBox,
-                      GestureDetector(
-                        onTap: () async {
-                          var screenResponse = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SearchScreen()),
-                          );
-                          if (screenResponse == 'getDirection') {
-                            showRideDetailsPanel();
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 5.0,
-                                spreadRadius: 0.5,
-                                offset: Offset(0.7, 0.7),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.search,
-                                color: Colors.blueAccent,
-                              ),
-                              10.widthBox,
-                              "Search Destination".text.make(),
-                            ],
-                          ).p12(),
-                        ),
-                      ),
-                      22.heightBox,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.home_outlined,
-                            color: MyColors.colorDimText,
-                          ),
-                          12.widthBox,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              "Add Home".text.make(),
-                              3.heightBox,
-                              "Your residential Address"
-                                  .text
-                                  .size(13)
-                                  .color(MyColors.colorDimText)
-                                  .make(),
-                            ],
-                          ),
-                        ],
-                      ),
-                      10.heightBox,
-                      MyDivider(),
-                      16.heightBox,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.work_outlined,
-                            color: MyColors.colorDimText,
-                          ),
-                          12.widthBox,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              "Add Work".text.make(),
-                              3.heightBox,
-                              "Your office Address"
-                                  .text
-                                  .size(13)
-                                  .color(MyColors.colorDimText)
-                                  .make(),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ).pSymmetric(h: 24, v: 18),
-                ),
-              ),
-            ),
-
-            /// ride details
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AnimatedSize(
-                vsync: this,
-                curve: Curves.easeIn,
-                duration: Duration(milliseconds: 150),
-                child: Container(
-                  height: rideDetailsContainerHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      topRight: Radius.circular(18),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 18,
-                        spreadRadius: 0.5,
-                        offset: Offset(0.7, 0.7),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        color: MyColors.colorAccent1,
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/images/taxi.png',
-                              height: 70,
-                              width: 70,
-                            ),
-                            16.widthBox,
-                            Column(
-                              children: [
-                                "Taxi"
-                                    .text
-                                    .size(18)
-                                    .fontFamily('Brand-Bold')
-                                    .make(),
-                                "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}"
-                                    .text
-                                    .size(16)
-                                    .color(MyColors.colorTextLight)
-                                    .make(),
-                              ],
-                            ),
-                            Expanded(
-                              child: Container(),
-                            ),
-                            "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}"
-                                .text
-                                .size(18)
-                                .fontFamily('Brand-Bold')
-                                .make(),
-                          ],
-                        ).pSymmetric(h: 16),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.moneyBillAlt,
-                            size: 18,
-                            color: MyColors.colorTextLight,
-                          ),
-                          16.widthBox,
-                          DropdownButton(
-                            onChanged: (dynamic value) {},
-                            items: [
-                              DropdownMenuItem(child: "Cash".text.make()),
-                            ],
-                          ),
-                          5.widthBox,
-                        ],
-                      ).pSymmetric(h: 16),
-                      TaxiButton(
-                        onPressed: () {
-                          showRequestingRidePanel();
-                        },
-                        buttonText: 'Request cab',
-                      ).pSymmetric(h: 16),
-                    ],
-                  ).pSymmetric(v: 18),
-                ),
-              ),
-            ),
-
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AnimatedSize(
-                vsync: this,
-                duration: Duration(milliseconds: 150),
-                curve: Curves.easeIn,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      topRight: Radius.circular(18),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 18,
-                        spreadRadius: 0.5,
-                        offset: Offset(0.7, 0.7),
-                      ),
-                    ],
-                  ),
-                  height: requestingRideContainerHeight,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      10.heightBox,
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextLiquidFill(
-                          text: 'Requesting a ride...',
-                          waveColor: MyColors.colorTextSemiLight,
-                          boxBackgroundColor: Colors.white,
-                          textStyle: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          boxHeight: 40,
-                        ),
-                      ),
-                      20.heightBox,
-                      GestureDetector(
-                        onTap: () {
-                          cancelRideRequestInDatabase();
-                        },
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              width: 1,
-                              color: MyColors.colorLightGrayFair,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.close,
-                            size: 25,
-                          ),
-                        ),
-                      ),
-                      10.heightBox,
-                      "Cancel Ride".text.make(),
-                    ],
-                  ).pSymmetric(h: 24, v: 18),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
