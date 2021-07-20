@@ -4,12 +4,11 @@ import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/dataModels/placeSuggestion.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
-import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:uber_clone/widgets/suggestionTile.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'package:uber_clone/serviceUrls.dart' as serviceUtil;
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -22,42 +21,12 @@ class _SearchScreenState extends State<SearchScreen> {
   var focusDestination = FocusNode();
   bool focused = false;
   List<PlaceSuggestion> destinationSuggestionList = [];
-  String? authToken;
+  late String authToken;
 
-  void setDestinationFocus() {
-    if (!focused) {
-      FocusScope.of(context).requestFocus(focusDestination);
-    }
-  }
-
-  void getSearchSuggestions(String placeName) async {
-    if(authToken == null){
-      authToken = await HelperMethods.getAccessToken();
-    }
-
-    if (placeName.length > 1) {
-      String url = serviceUtil.getPlaceSearchSuggestion + '?place=$placeName';
-
-      logger.i('making call for place suggestion');
-      try{
-        Map<String, dynamic> response = await RequestHelper.getRequest(
-          url: url,
-          withAuthToken: true,
-          token: authToken,
-        );
-
-        var predictionJSON = response['body']['predictions'];
-        List<PlaceSuggestion> thisList = (predictionJSON as List)
-          .map((e) => PlaceSuggestion.fromJson(e))
-          .toList();
-
-        setState(() {
-          destinationSuggestionList = thisList;
-        });
-      } catch(e) {
-        logger.e(e);
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    authToken = Provider.of<AppData>(context, listen: false).getAuthToken();
   }
 
   @override
@@ -193,13 +162,46 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: (context, index) {
         return SuggestionTile(
           suggestion: destinationSuggestionList[index],
+          authToken: authToken,
         );
       },
-      separatorBuilder: (BuildContext context, int index) =>
-          MyDivider(),
+      separatorBuilder: (BuildContext context, int index) => MyDivider(),
       itemCount: destinationSuggestionList.length,
       shrinkWrap: true,
       physics: ClampingScrollPhysics(),
     );
+  }
+
+  void setDestinationFocus() {
+    if (!focused) {
+      FocusScope.of(context).requestFocus(focusDestination);
+    }
+  }
+
+  void getSearchSuggestions(String placeName) async {
+
+    if (placeName.length > 1) {
+      String url = serviceUrl.getPlaceSearchSuggestion + '?place=$placeName';
+
+      logger.i('making call for place suggestion');
+      try{
+        Map<String, dynamic> response = await RequestHelper.getRequest(
+          url: url,
+          withAuthToken: true,
+          token: authToken,
+        );
+
+        var predictionJSON = response['body']['predictions'];
+        List<PlaceSuggestion> thisList = (predictionJSON as List)
+            .map((e) => PlaceSuggestion.fromJson(e))
+            .toList();
+
+        setState(() {
+          destinationSuggestionList = thisList;
+        });
+      } catch(e) {
+        logger.e(e);
+      }
+    }
   }
 }

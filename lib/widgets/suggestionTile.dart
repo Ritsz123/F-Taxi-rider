@@ -8,12 +8,15 @@ import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
 
 class SuggestionTile extends StatelessWidget {
   final PlaceSuggestion suggestion;
-  SuggestionTile({required this.suggestion});
+  final String authToken;
 
-  getPlaceDetails(String? placeID, context) async {
+  SuggestionTile({required this.suggestion, required this.authToken});
+
+  getPlaceDetails(String placeID, context) async {
 //    show loading dialog
     showDialog(
       context: context,
@@ -21,28 +24,24 @@ class SuggestionTile extends StatelessWidget {
       builder: (context) => ProgressDialog(status: 'Please wait...'),
     );
 
-    String url =
-        "https://maps.googleapis.com/maps/api/place/details/json?placeid=$placeID&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url: url);
+    String url = serviceUrl.getPlaceDetails + '?placeId=$placeID';
+    try {
+      Map<String, dynamic> response = await RequestHelper.getRequest(url: url, token: authToken, withAuthToken: true);
+      // after request success remove loading dialog
+      Navigator.pop(context);
 
-//    after request success remove loading dialog
-    Navigator.pop(context);
+      Address thisPlace = Address.fromJson(response['body']);
 
-    if (response == 'failed') {
-      return;
-    }
-    if (response['status'] == 'OK') {
-      Address thisPlace = Address(
-        latitude: response['result']['geometry']['location']['lat'],
-        placeName: response['result']['name'],
-        longitude: response['result']['geometry']['location']['lng'],
-        placeID: placeID,
-      );
       Provider.of<AppData>(context, listen: false).updateDestinationAddress(thisPlace);
-//      update data in provider class
+
+//    update data in provider class
       print('Destination place: ${thisPlace.placeName}');
-//      close this screen
+
+//    close search screen
       Navigator.pop(context, 'getDirection');
+
+    } catch(e) {
+      logger.e(e);
     }
   }
 

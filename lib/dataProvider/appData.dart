@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_clone/dataModels/address.dart';
 import 'package:uber_clone/dataModels/userModel.dart';
-import 'package:uber_clone/globals.dart';
 
 class AppData extends ChangeNotifier {
   late Address _pickUpAddress;
   late Address _destinationAddress;
+  late String _authToken;
   UserModel? _currentUser;
 
   void updateDestinationAddress(Address newAddress) {
@@ -34,5 +33,14 @@ class AppData extends ChangeNotifier {
   void setCurrentUser(UserModel userModel){
     _currentUser = userModel;
     notifyListeners();
+  }
+
+  void setAuthToken(String token){
+    _authToken = token;
+    notifyListeners();
+  }
+
+  String getAuthToken() {
+    return _authToken;
   }
 }

@@ -4,6 +4,7 @@ class Address {
   double longitude;
   String? formattedPlaceAddress;
   String? placeID;
+
   Address({
     required this.placeName,
     required this.latitude,
@@ -11,4 +12,12 @@ class Address {
     this.placeID,
     this.formattedPlaceAddress,
   });
+
+  static Address fromJson(Map<String, dynamic> json) {
+    return Address(
+      placeName: json['result']['name'],
+      latitude: json['result']['geometry']['location']['lat'],
+      longitude: json['result']['geometry']['location']['lng'],
+    );
+  }
 }
