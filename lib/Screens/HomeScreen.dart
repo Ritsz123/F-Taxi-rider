@@ -463,8 +463,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> getDirection() async {
     Address pickUp = Provider.of<AppData>(context, listen: false).getPickUpAddress();
     Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
-    LatLng pickUpLatLng = LatLng(pickUp.latitude!, pickUp.longitude!);
-    LatLng destLatLng = LatLng(dest.latitude!, dest.longitude!);
+    LatLng pickUpLatLng = LatLng(pickUp.latitude, pickUp.longitude);
+    LatLng destLatLng = LatLng(dest.latitude, dest.longitude);
 
 //    show loading
     showDialog(
@@ -595,10 +595,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void createRideRequestToDatabase() {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
-    var pickup =
-        Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
-    var dest =
-        Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
+    var pickup = Provider.of<AppData>(context, listen: false).getPickUpAddress();
+    var dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
 
     Map pickupMap = {
       'latitude': pickup.latitude.toString(),

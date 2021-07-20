@@ -1,13 +1,13 @@
 class Address {
-  String? placeName;
-  double? latitude;
-  double? longitude;
+  String placeName;
+  double latitude;
+  double longitude;
   String? formattedPlaceAddress;
   String? placeID;
   Address({
-    this.placeName,
-    this.latitude,
-    this.longitude,
+    required this.placeName,
+    required this.latitude,
+    required this.longitude,
     this.placeID,
     this.formattedPlaceAddress,
   });

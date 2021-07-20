@@ -37,7 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
       }
       if (response['status'] == 'OK') {
         var predictionJSON = response['predictions'];
-        var thisList = (predictionJSON as List)
+        List<PlaceSuggestion> thisList = (predictionJSON as List)
             .map((e) => PlaceSuggestion.fromJson(e))
             .toList();
         setState(() {
@@ -49,7 +49,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String address = Provider.of<AppData>(context).getPickUpAddress().placeName ?? '';
+    String address = Provider.of<AppData>(context).getPickUpAddress().placeName;
     pickupTextController.text = address;
     setDestinationFocus();
     return Scaffold(

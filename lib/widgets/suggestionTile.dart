@@ -32,13 +32,13 @@ class SuggestionTile extends StatelessWidget {
       return;
     }
     if (response['status'] == 'OK') {
-      Address thisPlace = Address();
-      thisPlace.placeName = response['result']['name'];
-      thisPlace.placeID = placeID;
-      thisPlace.latitude = response['result']['geometry']['location']['lat'];
-      thisPlace.longitude = response['result']['geometry']['location']['lng'];
-      Provider.of<AppData>(context, listen: false)
-          .updateDestinationAddress(thisPlace);
+      Address thisPlace = Address(
+        latitude: response['result']['geometry']['location']['lat'],
+        placeName: response['result']['name'],
+        longitude: response['result']['geometry']['location']['lng'],
+        placeID: placeID,
+      );
+      Provider.of<AppData>(context, listen: false).updateDestinationAddress(thisPlace);
 //      update data in provider class
       print('Destination place: ${thisPlace.placeName}');
 //      close this screen
@@ -48,11 +48,10 @@ class SuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       onPressed: () {
         getPlaceDetails(suggestion.placeId, context);
       },
-      padding: EdgeInsets.all(0),
       child: Container(
         child: Row(
           children: [
@@ -66,18 +65,9 @@ class SuggestionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   8.heightBox,
-                  suggestion.mainText!.text
-                      .overflow(TextOverflow.ellipsis)
-                      .maxLines(2)
-                      .size(16)
-                      .make(),
+                  suggestion.mainText.text.overflow(TextOverflow.ellipsis).maxLines(2).size(16).make(),
                   2.heightBox,
-                  suggestion.secondaryText!.text
-                      .size(12)
-                      .overflow(TextOverflow.ellipsis)
-                      .maxLines(2)
-                      .color(MyColors.colorDimText)
-                      .make(),
+                  suggestion.secondaryText.text.size(12).overflow(TextOverflow.ellipsis).maxLines(2).color(MyColors.colorDimText).make(),
                   8.heightBox,
                 ],
               ),
