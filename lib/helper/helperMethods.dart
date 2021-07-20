@@ -101,6 +101,7 @@ class HelperMethods {
       logger.e(e);
       throw Exception('unable to cache token');
     }
+    logger.i('Auth token cache success');
     return success;
   }
 
@@ -120,7 +121,7 @@ class HelperMethods {
       logger.e('Token not found');
       throw Exception('Token not found');
     }
-
+    logger.i('access token retrieve success');
     return token;
   }
 

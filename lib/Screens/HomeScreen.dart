@@ -47,8 +47,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Set<Circle> _circles = {};
   bool drawerCanOpen = true;
   late DatabaseReference rideRef;
-
   DirectionDetails? tripDirectionDetails;
+  late String _authToken;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserDetails();
+  }
 
   void showRideDetailsPanel() async {
     await getDirection();
@@ -220,18 +226,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setupPositionLocator();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUserInfo();
-  }
+  void getCurrentUserDetails() async {
+    _authToken = await HelperMethods.getAccessToken();
 
-  void getCurrentUserInfo() async {
-    Map<String, dynamic> response = await RequestHelper.getRequest(url: serviceUrl.getUserData);
-
+    var response = await RequestHelper.getRequest(url: serviceUrl.getUserData, withAuthToken: true, token: _authToken);
     UserModel model = UserModel.fromJson(response['body']);
-
-    Provider.of<AppData>(context).setCurrentUser(model);
+    Provider.of<AppData>(context, listen: false).setCurrentUser(model);
+    logger.i('get user info success');
   }
 
   void createRideRequestToDatabase() {

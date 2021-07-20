@@ -13,9 +13,9 @@ class RequestHelper {
 
       http.Response response = await http.get(
         Uri.parse(url),
-        headers: withAuthToken ? {
-          'bearer': token!
-        } : {}
+        headers: {
+          'authorization': 'Bearer $token'
+        }
       );
 
       if (_successResponseCodes.contains(response.statusCode)) {
@@ -24,7 +24,7 @@ class RequestHelper {
         var decodedData = jsonDecode(data);
         return decodedData as Map<String, dynamic>;
       } else {
-        throw Exception('request failed');
+        throw Exception('request failed ${response.statusCode}');
       }
     } catch (e) {
       logger.e(e);
@@ -41,7 +41,8 @@ class RequestHelper {
       http.Response response = await http.post(
         Uri.parse(url),
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer $token'
         },
         body: jsonEncode(body),
       );

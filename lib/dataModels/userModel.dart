@@ -20,4 +20,9 @@ class UserModel {
       fullName: json['name'].toString(),
     );
   }
+
+  @override
+  String toString() {
+    return 'UserModel{id: $id, fullName: $fullName, phone: $phone, email: $email}';
+  }
 }
