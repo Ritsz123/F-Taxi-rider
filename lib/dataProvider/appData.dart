@@ -9,12 +9,6 @@ class AppData extends ChangeNotifier {
   Address? _destinationAddress;
   UserModel? _currentUser;
 
-  late SharedPreferences _preferences;
-
-  _initSharedPreferences() async {
-    _preferences = await SharedPreferences.getInstance();
-  }
-
   void updateDestinationAddress(Address newAddress) {
     _destinationAddress = newAddress;
     notifyListeners();
@@ -31,41 +25,6 @@ class AppData extends ChangeNotifier {
 
   Address? getDestinationAddress() {
     return _destinationAddress;
-  }
-
-  Future<bool> cacheAuthToken(String token) async {
-    await _initSharedPreferences();
-
-    logger.i('Caching auth token');
-
-    bool success = false;
-    try {
-       success = await _preferences.setString('authToken', token);
-    } catch(e) {
-      logger.e(e);
-      throw Exception('unable to cache token');
-    }
-    return success;
-  }
-
-  Future<String> getAccessToken() async {
-    await _initSharedPreferences();
-
-    logger.i('getting cached auth token');
-
-    String? token;
-    try {
-      token = _preferences.getString('authToken');
-    } catch(e) {
-      logger.e(e);
-      throw Exception('unable to retrieve token');
-    }
-    if(token == null) {
-      logger.e('Token not found');
-      throw Exception('Token not found');
-    }
-
-    return token;
   }
 
   UserModel? getCurrentUser() {

@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
+import 'package:uber_clone/dataModels/address.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
@@ -87,12 +88,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> getDirection() async {
-    var pickUp =
-        Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
-    var dest =
-        Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
-    var pickUpLatLng = LatLng(pickUp.latitude!, pickUp.longitude!);
-    var destLatLng = LatLng(dest.latitude!, dest.longitude!);
+    Address pickUp = Provider.of<AppData>(context, listen: false).getPickUpAddress()!;
+    Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress()!;
+    LatLng pickUpLatLng = LatLng(pickUp.latitude!, pickUp.longitude!);
+    LatLng destLatLng = LatLng(dest.latitude!, dest.longitude!);
 
 //    show loading
     showDialog(

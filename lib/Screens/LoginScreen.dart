@@ -1,10 +1,9 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
-import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
+import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
@@ -126,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context) => ProgressDialog(status: "Logging you in..."),
     );
 
+    logger.i('making login request');
     try {
       Map<String, dynamic> response = await RequestHelper.postRequest(
         url: serviceUrl.loginUser,
@@ -136,8 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       String token = response['body']['token'];
-      bool cached = await Provider.of<AppData>(context, listen: false).cacheAuthToken(token);
-      logger.i('catch status : $cached');
+      bool cached = await HelperMethods.cacheAuthToken(token);
+
       logger.i('Login Successful');
 
       Navigator.pushNamedAndRemoveUntil(

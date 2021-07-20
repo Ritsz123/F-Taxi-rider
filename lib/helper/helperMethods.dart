@@ -3,6 +3,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_clone/dataModels/address.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
@@ -10,6 +11,13 @@ import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 
 class HelperMethods {
+
+  static late SharedPreferences _preferences;
+
+  static Future<void> _initSharedPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
+  }
+
   static Future<String?> findCoordinateAddress(
       Position position, context) async {
     String? placeAddress = "";
@@ -80,4 +88,40 @@ class HelperMethods {
     double totalFare = baseFare + distanceFare + timeFare;
     return totalFare.truncate();
   }
+
+  static Future<bool> cacheAuthToken(String token) async {
+    await _initSharedPreferences();
+
+    logger.i('Caching auth token');
+
+    bool success = false;
+    try {
+      success = await _preferences.setString('authToken', token);
+    } catch(e) {
+      logger.e(e);
+      throw Exception('unable to cache token');
+    }
+    return success;
+  }
+
+  static Future<String> getAccessToken() async {
+    await _initSharedPreferences();
+
+    logger.i('getting cached auth token');
+
+    String? token;
+    try {
+      token = _preferences.getString('authToken');
+    } catch(e) {
+      logger.e(e);
+      throw Exception('unable to retrieve token');
+    }
+    if(token == null) {
+      logger.e('Token not found');
+      throw Exception('Token not found');
+    }
+
+    return token;
+  }
+
 }

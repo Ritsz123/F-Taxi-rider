@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/LoginScreen.dart';
-import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
+import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/inputField.dart';
 import 'package:uber_clone/widgets/progressIndicator.dart';
@@ -142,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
 
       String token = response['body']['token'];
-      bool cached = await Provider.of<AppData>(context, listen: false).cacheAuthToken(token);
+      bool cached = await HelperMethods.cacheAuthToken(token);
       logger.i('catch status : $cached');
       logger.i('User Registration Successful');
 
