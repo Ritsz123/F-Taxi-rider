@@ -21,4 +21,3 @@ final CameraPosition india = CameraPosition(
 Logger logger = Logger();
 
 User? currentUser;
-late UserModel currentUserInfo;

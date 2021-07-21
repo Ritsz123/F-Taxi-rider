@@ -116,8 +116,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: GestureDetector(
         onTap: () {
           drawerCanOpen
-              ? _scaffoldKey.currentState!.openDrawer()
-              : resetApp();
+            ? _scaffoldKey.currentState!.openDrawer()
+            : resetApp();
         },
         child: Container(
           decoration: BoxDecoration(
@@ -314,11 +314,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Expanded(
                       child: Container(),
                     ),
-                    "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}"
-                        .text
-                        .size(18)
-                        .fontFamily('Brand-Bold')
-                        .make(),
+                    "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}".text.size(18).fontFamily('Brand-Bold').make(),
                   ],
                 ).pSymmetric(h: 16),
               ),
@@ -595,27 +591,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void createRideRequestToDatabase() {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
-    var pickup = Provider.of<AppData>(context, listen: false).getPickUpAddress();
-    var dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
+    Address src = Provider.of<AppData>(context, listen: false).getPickUpAddress();
+    Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
+    UserModel currentUserInfo = Provider.of<AppData>(context, listen: false).getCurrentUser();
 
-    Map pickupMap = {
-      'latitude': pickup.latitude.toString(),
-      'longitude': pickup.longitude.toString(),
-      'placeName': pickup.placeName,
-      'placeId': pickup.placeID,
-    };
-    Map destMap = {
-      'latitude': dest.latitude.toString(),
-      'longitude': dest.longitude.toString(),
-      'placeName': dest.placeName,
-      'placeId': dest.placeID,
-    };
+    Map srcMap = src.toJson();
+    Map destMap = dest.toJson();
 
     Map rideMap = {
       'createdAt': DateTime.now().toString(),
-      'riderName': currentUserInfo.fullName,
-      'riderPhone': currentUserInfo.phone,
-      'pickupAddress': pickupMap,
+      'riderId': currentUserInfo.id,
+      'pickupAddress': srcMap,
       'destinationAddress': destMap,
       'paymentMethod': 'Cash',
       'driverId': 'waiting',

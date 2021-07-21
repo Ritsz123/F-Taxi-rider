@@ -6,7 +6,7 @@ class AppData extends ChangeNotifier {
   late Address _pickUpAddress;
   late Address _destinationAddress;
   late String _authToken;
-  UserModel? _currentUser;
+  late UserModel _currentUser;
 
   void updateDestinationAddress(Address newAddress) {
     _destinationAddress = newAddress;
@@ -26,7 +26,7 @@ class AppData extends ChangeNotifier {
     return _destinationAddress;
   }
 
-  UserModel? getCurrentUser() {
+  UserModel getCurrentUser() {
     return _currentUser;
   }
 

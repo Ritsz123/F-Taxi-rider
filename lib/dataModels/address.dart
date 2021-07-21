@@ -20,4 +20,14 @@ class Address {
       longitude: json['result']['geometry']['location']['lng'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'placeName': placeName,
+      'latitude': latitude,
+      'longitude': longitude,
+      'formattedPlaceAddress' : formattedPlaceAddress,
+      'placeId': placeID
+    };
+  }
 }
