@@ -9,3 +9,4 @@ const String getUserData = '$domain/auth/getUserProfile';
 const String getPlaceSearchSuggestion = '$domain/google/searchplace';
 const String getPlaceDetails = '$domain/google/placeDetails';
 const String getLatLngDetails = '$domain/google/latlngdetails';
+const String getRouteDetails = '$domain/google/routedetails';

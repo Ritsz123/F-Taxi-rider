@@ -469,8 +469,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       barrierDismissible: false,
     );
 
-    DirectionDetails thisDetails =
-        await (HelperMethods.getDirectionDetails(pickUpLatLng, destLatLng));
+    DirectionDetails thisDetails = await (HelperMethods.getDirectionDetails(
+        context: context,
+        startPosition: pickUpLatLng,
+        endPosition: destLatLng,
+      )
+    );
+
     setState(() {
       tripDirectionDetails = thisDetails;
     });

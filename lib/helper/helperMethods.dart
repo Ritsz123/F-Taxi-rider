@@ -1,4 +1,5 @@
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -51,35 +52,27 @@ class HelperMethods {
     return placeAddress;
   }
 
-  static Future<DirectionDetails> getDirectionDetails(
-      LatLng startPosition, LatLng endPosition) async {
-    String url =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${startPosition.latitude},${startPosition.longitude}&destination=${endPosition.latitude},${endPosition.longitude}&mode=driving&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url: url);
+  static Future<DirectionDetails> getDirectionDetails({required BuildContext context, required LatLng startPosition, required LatLng endPosition}) async {
 
-    if (response['status'] == 'OK') {
-      String distanceText =
-      response['routes'][0]['legs'][0]['distance']['text'];
-      int distanceValue =
-      response['routes'][0]['legs'][0]['distance']['value'];
-      String durationText =
-      response['routes'][0]['legs'][0]['duration']['text'];
-      int durationValue =
-      response['routes'][0]['legs'][0]['duration']['value'];
-      String encodedPoints =
-      response['routes'][0]['overview_polyline']['points'];
+    final String srcUrlPart = '?sourceLatLng=${startPosition.latitude},${startPosition.longitude}';
+    final String destUrlPart = '&destLatLng=${endPosition.latitude},${endPosition.longitude}';
 
-      DirectionDetails directionDetails = DirectionDetails(
-          distanceText: distanceText,
-          distanceValue: distanceValue,
-          durationText: durationText,
-          durationValue: durationValue,
-          encodedPoints: encodedPoints,
+    final String url = serviceUrl.getRouteDetails + srcUrlPart + destUrlPart;
+    final String token = Provider.of<AppData>(context,listen: false).getAuthToken();
+
+    try {
+      Map<String, dynamic> response = await RequestHelper.getRequest(
+        url: url,
+        withAuthToken: true,
+        token: token,
       );
 
+      DirectionDetails directionDetails = DirectionDetails.fromJson(response['body']);
+
       return directionDetails;
-    }else {
-      throw Exception('Network Exception');
+    } catch(e) {
+      logger.e(e);
+      throw e;
     }
   }
 
