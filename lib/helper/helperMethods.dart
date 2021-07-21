@@ -8,6 +8,7 @@ import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
+import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
 
 class HelperMethods {
 
@@ -18,22 +19,34 @@ class HelperMethods {
   }
 
   static Future<String> findCoordinateAddress(Position position, context) async {
-    String placeAddress = "";
+    String placeAddress = '';
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.mobile &&
-        connectivityResult != ConnectivityResult.wifi) {
+      connectivityResult != ConnectivityResult.wifi) {
       return placeAddress;
     }
-    String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$billingMapKey";
-    var response = await RequestHelper.getRequest(url: url);
-    if (response != 'Request Failed') {
-      placeAddress = response['results'][0]['formatted_address'];
+
+    final String url = serviceUrl.getLatLngDetails + '/?lat=${position.latitude}&lng=${position.longitude}';
+    final String token = Provider.of<AppData>(context,listen: false).getAuthToken();
+
+    try {
+      logger.i('making request to get latlng details');
+      Map<String, dynamic> response = await RequestHelper.getRequest(
+        url: url,
+        withAuthToken: true,
+        token: token,
+      );
+
       Address pickUpAddress = new Address(
         latitude: position.latitude,
         longitude: position.longitude,
-        placeName: placeAddress,
+        placeName: placeAddress = response['body']['results'][0]['formatted_address'],
       );
+
+      logger.i('get latlng details success');
       Provider.of<AppData>(context, listen: false).updatePickupAddress(pickUpAddress);
+    } catch (e) {
+      logger.e(e);
     }
     return placeAddress;
   }

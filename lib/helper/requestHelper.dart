@@ -24,7 +24,7 @@ class RequestHelper {
         var decodedData = jsonDecode(data);
         return decodedData as Map<String, dynamic>;
       } else {
-        throw Exception('request failed ${response.statusCode}');
+        throw Exception('request failed ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       logger.e(e);

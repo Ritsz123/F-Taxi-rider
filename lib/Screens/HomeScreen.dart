@@ -452,8 +452,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
-    String? address = await HelperMethods.findCoordinateAddress(position, context);
-    logger.i('address: $address');
+    String address = await HelperMethods.findCoordinateAddress(position, context);
+    logger.i('source address: $address');
   }
 
   Future<void> getDirection() async {
