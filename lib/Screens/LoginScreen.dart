@@ -141,12 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
       bool cached = await HelperMethods.cacheAuthToken(authToken);
       if(cached) {
         Provider.of<AppData>(context, listen: false).setAuthToken(authToken);
+
+        logger.i('Login Successful');
+
+        Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
       }
-
-      logger.i('Login Successful');
-
-      Navigator.pushNamedAndRemoveUntil(
-          context, HomeScreen.id, (route) => false);
     } catch (e) {
       Navigator.pop(context);
       showSnackBar(e.toString());

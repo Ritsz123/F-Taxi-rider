@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/LoginScreen.dart';
 import 'package:uber_clone/Screens/RegistrationScreen.dart';
+import 'package:uber_clone/Screens/SplashScreen.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 
 Future<void> main() async {
@@ -50,11 +51,12 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        initialRoute: LoginScreen.id,
+        initialRoute: SplashScreen.id,
         routes: {
           HomeScreen.id: (context) => HomeScreen(),
           LoginScreen.id: (context) => LoginScreen(),
           RegistrationScreen.id: (context) => RegistrationScreen(),
+          SplashScreen.id: (context) => SplashScreen(),
         },
       ),
     );
