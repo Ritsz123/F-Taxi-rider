@@ -104,33 +104,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     ).p20();
   }
 
-  void validateRegistration() async {
+  Future<bool> validateRegistration() async {
 // check network connection
     var connResult = await Connectivity().checkConnectivity();
     if (connResult != ConnectivityResult.mobile &&
         connResult != ConnectivityResult.wifi) {
       showSnackBar("No Internet connectivity");
-      return;
+      return false;
     }
     if (_name.length < 5) {
       showSnackBar("Please provide valid full name");
+      return false;
     } else if (_phone.length != 10) {
       showSnackBar("Please provide valid phone number");
+      return false;
     } else if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_email)) {
       showSnackBar("please provide valid email address");
+      return false;
     } else if (_password.length < 6) {
       showSnackBar("password length should be more than 6 characters");
+      return false;
     } else {
       showDialog(
         barrierDismissible: false,
         context: context,
         builder: (context) => ProgressDialog(status: "Registering user...."),
       );
-      registerUser();
     }
+    return true;
   }
 
   void registerUser() async {
+    final bool isFormValid = await validateRegistration();
+    if(!isFormValid) return;
+
     try {
       Map<String, dynamic> response = await RequestHelper.postRequest(
         url: serviceUrl.registerUser,
@@ -151,8 +158,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       logger.i('User Registration Successful');
 
-      Navigator.pushNamedAndRemoveUntil(
-          context, HomeScreen.id, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
 
     } catch (e) {
       Navigator.pop(context);
