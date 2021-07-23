@@ -53,12 +53,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _authToken = Provider.of<AppData>(context, listen: false).getAuthToken();
     getCurrentUserDetails();
   }
 
   void getCurrentUserDetails() async {
-    _authToken = await HelperMethods.getAccessToken();
-
     var response = await RequestHelper.getRequest(url: serviceUrl.getUserData, withAuthToken: true, token: _authToken);
     UserModel model = UserModel.fromJson(response['body']);
     Provider.of<AppData>(context, listen: false).setCurrentUser(model);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_clone/Screens/HomeScreen.dart';
 import 'package:uber_clone/Screens/LoginScreen.dart';
+import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -26,10 +28,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void checkForToken() async {
     try {
       token = await HelperMethods.getAccessToken();
-      logger.i('user already logged in redirecting to home page');
-      Navigator.popAndPushNamed(context, HomeScreen.id);
+      if(token != null){
+        Provider.of<AppData>(context,listen: false).setAuthToken(token!);
 
-    } catch(e){
+        logger.i('user already logged in redirecting to home page');
+        Navigator.popAndPushNamed(context, HomeScreen.id);
+      } else {
+        Navigator.popAndPushNamed(context, LoginScreen.id);
+      }
+    } catch(e) {
       logger.e('user not logged in redirecting to login page');
       Navigator.popAndPushNamed(context, LoginScreen.id);
     }
