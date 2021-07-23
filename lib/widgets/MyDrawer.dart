@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uber_clone/dataModels/userModel.dart';
+import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/styles/styles.dart';
 import 'package:uber_clone/widgets/divider.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -10,6 +13,7 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserModel currentUser = Provider.of<AppData>(context).getCurrentUser();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.all(0),
@@ -29,11 +33,7 @@ class MyDrawer extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    "Ritesh Khadse"
-                        .text
-                        .size(20)
-                        .fontFamily('Brand-Bold')
-                        .make(),
+                    currentUser.fullName.text.size(20).fontFamily('Brand-Bold').make(),
                     "View Profile".text.make(),
                   ],
                 ),
