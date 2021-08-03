@@ -53,7 +53,7 @@ class RequestHelper {
         Map<String, dynamic> decodedData = jsonDecode(data);
         return decodedData;
       }else{
-        throw Exception(response.statusCode);
+        throw Exception('request failed ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       logger.e(e);
