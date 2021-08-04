@@ -2,17 +2,20 @@ import 'dart:async';
 import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_clone/Colors.dart';
 import 'package:uber_clone/Screens/searchScreen.dart';
+import 'package:uber_clone/dataModels/NearByDriver.dart';
 import 'package:uber_clone/dataModels/address.dart';
 import 'package:uber_clone/dataModels/directionDetails.dart';
 import 'package:uber_clone/dataModels/userModel.dart';
 import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
+import 'package:uber_clone/helper/geoHelper.dart';
 import 'package:uber_clone/helper/helperMethods.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/widgets/MyDrawer.dart';
@@ -34,13 +37,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  double searchContainerHeight = (Platform.isIOS) ? 300 : 275;
-  double rideDetailsContainerHeight = 0; //  (Platform.isIOS) ? 235 : 250;
-  double requestingRideContainerHeight = 0; //(Platform.isIOS) ? 220 : 190;
+  double searchContainerHeight = 275;
+  double rideDetailsContainerHeight = 0; //   250;
+  double requestingRideContainerHeight = 0; // 190;
   Completer<GoogleMapController> _completer = Completer();
   late GoogleMapController mapController;
   double mapBottomPadding = 0;
-  Position? currentPosition;
+  late Position currentPosition;
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
@@ -49,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late DatabaseReference rideRef;
   DirectionDetails? tripDirectionDetails;
   late String _authToken;
+  final String availableDriversPathInDB = "driversAvailable";
 
   @override
   void initState() {
@@ -86,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 _completer.complete(controller);
                 mapController = controller;
                 setState(() {
-                  mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+                  mapBottomPadding = 280;
                 });
                 setupPositionLocator();
               },
@@ -298,16 +302,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     16.widthBox,
                     Column(
                       children: [
-                        "Taxi"
-                            .text
-                            .size(18)
-                            .fontFamily('Brand-Bold')
-                            .make(),
-                        "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}"
-                            .text
-                            .size(16)
-                            .color(MyColors.colorTextLight)
-                            .make(),
+                        "Taxi".text.size(18).fontFamily('Brand-Bold').make(),
+                        "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}".text.size(16).color(MyColors.colorTextLight).make(),
                       ],
                     ),
                     Expanded(
@@ -346,12 +342,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void showRideDetailsPanel() async {
     await getDirection();
     setState(() {
       searchContainerHeight = 0;
-      rideDetailsContainerHeight = (Platform.isIOS) ? 225 : 235;
-      mapBottomPadding = (Platform.isIOS) ? 270 : 280;
+      rideDetailsContainerHeight = 235;
+      mapBottomPadding = 280;
       drawerCanOpen = false;
     });
   }
@@ -439,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void setupPositionLocator() async {
-    Position position = await Geolocator.getCurrentPosition(
+    final Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
     );
     currentPosition = position;
@@ -453,6 +450,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
     String address = await HelperMethods.findCoordinateAddress(position, context);
     logger.i('source address: $address');
+    startGeoFireListener();
   }
 
   Future<void> getDirection() async {
@@ -485,8 +483,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 //    print('Encoded points: ${thisDetails.encodedPoints}');
 
     PolylinePoints polylinePoints = PolylinePoints();
-    List<PointLatLng>? results =
-        polylinePoints.decodePolyline(thisDetails.encodedPoints);
+    List<PointLatLng>? results = polylinePoints.decodePolyline(thisDetails.encodedPoints);
 
 //    clear previous points before adding new
     polylineCoordinates.clear();
@@ -577,6 +574,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _circles.add(destCircle);
       });
     }
+  }
+
+  void startGeoFireListener() {
+    Geofire.initialize(availableDriversPathInDB);
+    
+    Geofire.queryAtLocation(currentPosition.latitude, currentPosition.longitude, 10)!.listen((map) {
+      // logger.i(map);
+
+      if (map != null) {
+        var callBack = map['callBack'];
+        //latitude will be retrieved from map['latitude']
+        //longitude will be retrieved from map['longitude']
+        
+        switch (callBack) {
+          case Geofire.onKeyEntered:
+            NearByDriver nearByDriver = NearByDriver(
+              id: map['key'],
+              lat: map['latitude'],
+              lng: map['longitude'],
+            );
+            GeoHelper.nearByDrivers.add(nearByDriver);
+            break;
+
+          case Geofire.onKeyExited:
+            GeoHelper.removeNearByDriverFromList(map['key']);
+            break;
+
+          case Geofire.onKeyMoved:
+            // Update your key's location
+            GeoHelper.removeNearByDriverFromList(map['key']);
+            NearByDriver nearByDriver = NearByDriver(
+              id: map['key'],
+              lat: map['latitude'],
+              lng: map['longitude'],
+            );
+            GeoHelper.nearByDrivers.add(nearByDriver);
+            break;
+
+          case Geofire.onGeoQueryReady:
+          // All Intial Data is loaded
+            logger.i('total drivers available : ${GeoHelper.nearByDrivers.length}');
+
+            break;
+        }
+      }
+    });
   }
 
   void resetApp() {

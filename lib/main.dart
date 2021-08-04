@@ -14,23 +14,13 @@ Future<void> main() async {
   try {
     final FirebaseApp app = await Firebase.initializeApp(
       name: 'db2',
-      options: Platform.isIOS || Platform.isMacOS
-//    for ios
-          ? FirebaseOptions(
-              appId: '1:297855924061:ios:c6de2b69b03a5be8',
-              apiKey: 'AIzaSyD_shO5mfO9lhy2TVWhfo1VUmARKlG4suk',
-              projectId: 'flutter-firebase-plugins',
-              messagingSenderId: '297855924061',
-              databaseURL: 'https://flutterfire-cd2f7.firebaseio.com',
-            )
-//    for android
-          : FirebaseOptions(
-              appId: '1:532235138800:android:3aa012e24df0217d423435',
-              apiKey: 'AIzaSyBGFnI2gX1UKFf3XWBo6uUGCE0HhxKzMlo',
-              messagingSenderId: '532235138800',
-              projectId: 'uber-clone-ba3b4',
-              databaseURL: 'https://uber-clone-ba3b4.firebaseio.com',
-            ),
+      options: FirebaseOptions(
+        appId: '1:532235138800:android:3aa012e24df0217d423435',
+        apiKey: 'AIzaSyBGFnI2gX1UKFf3XWBo6uUGCE0HhxKzMlo',
+        messagingSenderId: '532235138800',
+        projectId: 'uber-clone-ba3b4',
+        databaseURL: 'https://uber-clone-ba3b4.firebaseio.com',
+      ),
     );
   } catch (ex) {
     print(ex.toString());
