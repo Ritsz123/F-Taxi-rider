@@ -5,5 +5,6 @@ This Module is the part of complete project **F - Taxi**. 🚗
 - User Login / Registration. 🔐
 - Searching for destination.
 - Booking a ride. 🚕
+- Calculate and show the expected time of arrival for the driver. (based on google map's API)
 - Selecting a payment method. 🏧
-- Check all the available drivers's Location. 🗺
+- Display all the available drivers's realtime location on the map. 🗺
