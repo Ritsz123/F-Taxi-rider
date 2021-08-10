@@ -28,7 +28,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
-
+part '../widgets/search_panel.dart';
+part '../widgets/ride_details.dart';
+part '../widgets/requesting_ride_panel.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = "homeScreen";
@@ -36,7 +38,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   double searchContainerHeight = 275;
   double rideDetailsContainerHeight = 0; //   250;
@@ -160,198 +162,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _searchPanel() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: AnimatedSize(
-        vsync: this,
-        duration: Duration(milliseconds: 150),
-        curve: Curves.easeIn,
-        child: Container(
-          height: searchContainerHeight,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(18),
-              topRight: Radius.circular(18),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 18,
-                spreadRadius: 0.5,
-                offset: Offset(0.7, 0.7),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              5.heightBox,
-              "Nice to see you".text.size(10).make(),
-              "Where are you going".text.size(18).fontFamily('Brand-Bold').make(),
-              20.heightBox,
-              GestureDetector(
-                onTap: () async {
-                  var screenResponse = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SearchScreen()),
-                  );
-                  if (screenResponse == 'getDirection') {
-                    showRideDetailsPanel();
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 5.0,
-                        spreadRadius: 0.5,
-                        offset: Offset(0.7, 0.7),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.search,
-                        color: Colors.blueAccent,
-                      ),
-                      10.widthBox,
-                      "Search Destination".text.make(),
-                    ],
-                  ).p12(),
-                ),
-              ),
-              22.heightBox,
-              Row(
-                children: [
-                  Icon(
-                    Icons.home_outlined,
-                    color: MyColors.colorDimText,
-                  ),
-                  12.widthBox,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      "Add Home".text.make(),
-                      3.heightBox,
-                      "Your residential Address".text.size(13).color(MyColors.colorDimText).make(),
-                    ],
-                  ),
-                ],
-              ),
-              10.heightBox,
-              MyDivider(),
-              16.heightBox,
-              Row(
-                children: [
-                  Icon(
-                    Icons.work_outlined,
-                    color: MyColors.colorDimText,
-                  ),
-                  12.widthBox,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      "Add Work".text.make(),
-                      3.heightBox,
-                      "Your office Address".text.size(13).color(MyColors.colorDimText).make(),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ).pSymmetric(h: 24, v: 18),
-        ),
-      ),
+    return SearchPanel(
+      searchContainerHeight: searchContainerHeight,
+      onTapSearch: showRideDetailsPanel,
     );
   }
 
   Widget _rideDetails() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: AnimatedSize(
-        vsync: this,
-        curve: Curves.easeIn,
-        duration: Duration(milliseconds: 150),
-        child: Container(
-          height: rideDetailsContainerHeight,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(18),
-              topRight: Radius.circular(18),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 18,
-                spreadRadius: 0.5,
-                offset: Offset(0.7, 0.7),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: double.infinity,
-                color: MyColors.colorAccent1,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/taxi.png',
-                      height: 70,
-                      width: 70,
-                    ),
-                    16.widthBox,
-                    Column(
-                      children: [
-                        "Taxi".text.size(18).fontFamily('Brand-Bold').make(),
-                        "${tripDirectionDetails != null ? tripDirectionDetails!.distanceText : ''}".text.size(16).color(MyColors.colorTextLight).make(),
-                      ],
-                    ),
-                    Expanded(
-                      child: Container(),
-                    ),
-                    "₹ ${tripDirectionDetails != null ? HelperMethods.estimateFares(tripDirectionDetails!) : ''}".text.size(18).fontFamily('Brand-Bold').make(),
-                  ],
-                ).pSymmetric(h: 16),
-              ),
-              Row(
-                children: [
-                  Icon(
-                    FontAwesomeIcons.moneyBillAlt,
-                    size: 18,
-                    color: MyColors.colorTextLight,
-                  ),
-                  16.widthBox,
-                  DropdownButton(
-                    onChanged: (dynamic value) {},
-                    items: [
-                      DropdownMenuItem(child: "Cash".text.make()),
-                    ],
-                  ),
-                  5.widthBox,
-                ],
-              ).pSymmetric(h: 16),
-              TaxiButton(
-                onPressed: () {
-                  showRequestingRidePanel();
-                },
-                buttonText: 'Request cab',
-              ).pSymmetric(h: 16),
-            ],
-          ).pSymmetric(v: 18),
-        ),
-      ),
+    return RideDetails(
+      rideDetailsContainerHeight: rideDetailsContainerHeight,
+      tripDirectionDetails: tripDirectionDetails,
+      onTapRequestRide: showRequestingRidePanel,
     );
   }
 
@@ -366,78 +187,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _requestingRidePanel() {
-    return  Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: AnimatedSize(
-        vsync: this,
-        duration: Duration(milliseconds: 150),
-        curve: Curves.easeIn,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(18),
-              topRight: Radius.circular(18),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 18,
-                spreadRadius: 0.5,
-                offset: Offset(0.7, 0.7),
-              ),
-            ],
-          ),
-          height: requestingRideContainerHeight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              10.heightBox,
-              SizedBox(
-                width: double.infinity,
-                child: TextLiquidFill(
-                  text: 'Requesting a ride...',
-                  waveColor: MyColors.colorTextSemiLight,
-                  boxBackgroundColor: Colors.white,
-                  textStyle: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  boxHeight: 40,
-                ),
-              ),
-              20.heightBox,
-              GestureDetector(
-                onTap: () {
-                  cancelRideRequestInDatabase();
-                },
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(
-                      width: 1,
-                      color: MyColors.colorLightGrayFair,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    size: 25,
-                  ),
-                ),
-              ),
-              10.heightBox,
-              "Cancel Ride".text.make(),
-            ],
-          ).pSymmetric(h: 24, v: 18),
-        ),
-      ),
+    return RequestingRidePanel(
+      requestingRideContainerHeight: requestingRideContainerHeight,
+      onCancelRide: cancelRideRequestInDatabase,
     );
   }
+
   void showRequestingRidePanel() {
     rideDetailsContainerHeight = 0;
     requestingRideContainerHeight = (Platform.isIOS) ? 220 : 190;
@@ -637,11 +392,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void updateDriversOnMap() {
-
     _markers.clear();
 
     //loop all the nearby drivers and create marker set.
-
     _markers = GeoHelper.nearByDrivers.map(
       (NearByDriver driver) {
         LatLng _driverPos = LatLng(driver.lat, driver.lng);
