@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _drawerIcon() {
     return Positioned(
-      top: (Platform.isIOS) ? 44 : 20,
+      top: 20,
       left: 20,
       child: GestureDetector(
         onTap: () {
@@ -200,6 +200,11 @@ class _HomeScreenState extends State<HomeScreen> {
     drawerCanOpen = false;
     setState(() {});
     createRideRequestToDatabase();
+    notifyNearestDriver(GeoHelper.nearByDrivers.first);
+  }
+
+  void notifyNearestDriver(NearByDriver nearestDriver) {
+    logger.i('nearest found driver ${nearestDriver.id}');
   }
 
   void setupPositionLocator() async {
