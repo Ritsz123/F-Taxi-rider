@@ -1,16 +1,10 @@
-# uber_clone
+# F - Taxi - Rider 🚗
 
-A new Flutter application.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This Module is the part of complete project **F - Taxi**. 🚗
+<br> Developed using Flutter 📱 contains all Rider (end user) related functionalities such as:
+- User Login / Registration. 🔐
+- Searching for destination.
+- Booking a ride. 🚕
+- Calculate and show the expected time of arrival for the driver. (based on google map's API)
+- Selecting a payment method. 🏧
+- Display all the available drivers's realtime location on the map. 🗺
