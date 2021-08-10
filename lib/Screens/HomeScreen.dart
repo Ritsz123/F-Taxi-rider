@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
@@ -53,6 +54,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   DirectionDetails? tripDirectionDetails;
   late String _authToken;
   final String availableDriversPathInDB = "driversAvailable";
+  BitmapDescriptor? _nearByCarIcon;
+
+  void createNearByIcon() {
+    if(_nearByCarIcon != null) return;
+    ImageConfiguration imageConfiguration = createLocalImageConfiguration(context, size: Size(2,2));
+    BitmapDescriptor.fromAssetImage(
+      imageConfiguration,
+      'assets/images/car_android.png',
+    ).then((icon) => _nearByCarIcon = icon);
+  }
 
   @override
   void initState() {
@@ -70,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    createNearByIcon();
     return Scaffold(
       key: _scaffoldKey,
       drawer: MyDrawer(),
@@ -599,6 +611,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
           case Geofire.onKeyExited:
             GeoHelper.removeNearByDriverFromList(map['key']);
+            updateDriversOnMap();
             break;
 
           case Geofire.onKeyMoved:
@@ -610,16 +623,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               lng: map['longitude'],
             );
             GeoHelper.nearByDrivers.add(nearByDriver);
+            updateDriversOnMap();
             break;
 
           case Geofire.onGeoQueryReady:
-          // All Intial Data is loaded
+            // All Initial Data is loaded
+            updateDriversOnMap();
             logger.i('total drivers available : ${GeoHelper.nearByDrivers.length}');
-
             break;
         }
       }
     });
+  }
+
+  void updateDriversOnMap() {
+
+    _markers.clear();
+
+    //loop all the nearby drivers and create marker set.
+
+    _markers = GeoHelper.nearByDrivers.map(
+      (NearByDriver driver) {
+        LatLng _driverPos = LatLng(driver.lat, driver.lng);
+        return Marker(
+          markerId: MarkerId('marker${driver.id}'),
+          position: _driverPos,
+          icon: _nearByCarIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          rotation: Random().nextInt(360).toDouble(),
+        );
+      }
+    ).toSet();
+
+    setState(() {});
   }
 
   void resetApp() {
