@@ -90,25 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            GoogleMap(
-              myLocationEnabled: true,
-              zoomGesturesEnabled: true,
-              zoomControlsEnabled: true,
-              polylines: _polylines,
-              markers: _markers,
-              circles: _circles,
-              padding: EdgeInsets.only(bottom: mapBottomPadding),
-              mapType: MapType.normal,
-              initialCameraPosition: india,
-              onMapCreated: (GoogleMapController controller) {
-                _completer.complete(controller);
-                mapController = controller;
-                setState(() {
-                  mapBottomPadding = 280;
-                });
-                setupPositionLocator();
-              },
-            ),
+            _getMap(),
             /// Drawer Icon
             _drawerIcon(),
 
@@ -123,6 +105,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _getMap() {
+    return GoogleMap(
+      myLocationEnabled: true,
+      zoomGesturesEnabled: true,
+      zoomControlsEnabled: true,
+      polylines: _polylines,
+      markers: _markers,
+      circles: _circles,
+      padding: EdgeInsets.only(bottom: mapBottomPadding),
+      mapType: MapType.normal,
+      initialCameraPosition: india,
+      onMapCreated: (GoogleMapController controller) {
+        _completer.complete(controller);
+        mapController = controller;
+        setState(() {
+          mapBottomPadding = 280;
+        });
+        setupPositionLocator();
+      },
     );
   }
 
