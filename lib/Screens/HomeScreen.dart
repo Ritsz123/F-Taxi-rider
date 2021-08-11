@@ -207,8 +207,29 @@ class _HomeScreenState extends State<HomeScreen> {
     notifyNearestDriver(GeoHelper.nearByDrivers.first);
   }
 
-  void notifyNearestDriver(NearByDriver nearestDriver) {
+  void notifyNearestDriver(NearByDriver nearestDriver) async {
     logger.i('nearest found driver ${nearestDriver.id}');
+
+    final String url = serviceUrl.getDriverFcmToken + '?driverid=${nearestDriver.id}';
+
+    try{
+      Map<String, dynamic> response = await RequestHelper.getRequest(
+        url: url,
+        token: _authToken,
+        withAuthToken: true,
+      );
+
+      final String fcmToken = response['body']['fcmToken'];
+
+      logger.i('new ride id : ${rideRef.key}');
+      logger.i('retrieved token: $fcmToken');
+
+      //send notification to the token
+      HelperMethods.sendFcmNotification(fcmToken, rideRef.key);
+
+    } catch(exception) {
+      logger.e(exception);
+    }
   }
 
   void setupPositionLocator() async {
@@ -450,6 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'paymentMethod': 'Cash',
       'driverId': 'waiting',
     };
+
     rideRef.set(rideMap);
   }
 

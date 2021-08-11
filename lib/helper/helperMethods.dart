@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,6 +11,8 @@ import 'package:uber_clone/dataProvider/appData.dart';
 import 'package:uber_clone/globals.dart';
 import 'package:uber_clone/helper/requestHelper.dart';
 import 'package:uber_clone/serviceUrls.dart' as serviceUrl;
+import 'package:http/http.dart' as http;
+
 
 class HelperMethods {
 
@@ -128,4 +131,34 @@ class HelperMethods {
     return token;
   }
 
+  static Future<void> sendFcmNotification(String fcmToken, String rideId) async {
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=AAAAe-uvtvA:APA91bFEEC0VTbzbMT1d0hoBibNgmfIun9Ye9maDYuzs7ECiv1nBGmdtLg0JzH52Jp6KkCbSI606QWuUVRgxxKmIOP3I2npSaR4A-XN0XiZs4quO52CyMXgXUBgiHUHlsL-vpL5xS1yP'
+    };
+
+    final Map<String, dynamic> reqBody = {
+      'notification': {
+        'title': 'new Trip request'
+      },
+      'data': {
+        'rideId': rideId
+      },
+      'priority': 'high',
+      'to': fcmToken
+    };
+
+    try{
+      http.Response response  = await http.post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: headers,
+        body: jsonEncode(reqBody),
+      );
+
+      logger.i('fcm notification sent ${response.body}');
+
+    } catch(exception){
+      logger.e(exception);
+    }
+  }
 }
