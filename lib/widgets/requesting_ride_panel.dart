@@ -3,11 +3,13 @@ part of  '../Screens/HomeScreen.dart';
 class RequestingRidePanel extends StatelessWidget {
   final double requestingRideContainerHeight;
   final VoidCallback onCancelRide;
+  final bool tripAccepted;
 
   const RequestingRidePanel({
     Key? key,
     required this.requestingRideContainerHeight,
-    required this.onCancelRide
+    required this.onCancelRide,
+    required this.tripAccepted,
   }) : super(key: key);
 
   @override
@@ -41,7 +43,7 @@ class RequestingRidePanel extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextLiquidFill(
-                text: 'Requesting a ride...',
+                text: tripAccepted ? '' : 'Requesting a ride...',
                 waveColor: MyColors.colorTextSemiLight,
                 boxBackgroundColor: Colors.white,
                 textStyle: TextStyle(
@@ -51,30 +53,38 @@ class RequestingRidePanel extends StatelessWidget {
                 boxHeight: 40,
               ),
             ),
-            20.heightBox,
-            GestureDetector(
-              onTap: () => onCancelRide(),
-              child: Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    width: 1,
-                    color: MyColors.colorLightGrayFair,
-                  ),
-                ),
-                child: Icon(
-                  Icons.close,
-                  size: 25,
-                ),
-              ),
-            ),
-            10.heightBox,
-            "Cancel Ride".text.make(),
+           _cancelButton(),
           ],
         ).pSymmetric(h: 24, v: 18),
       ),
+    );
+  }
+
+  Widget _cancelButton() {
+    return tripAccepted ? 'Trip Accepted\n The Driver is the way'.text.makeCentered() : Column(
+      children: [
+        20.heightBox,
+        GestureDetector(
+          onTap: () => onCancelRide(),
+          child: Container(
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                width: 1,
+                color: MyColors.colorLightGrayFair,
+              ),
+            ),
+            child: Icon(
+              Icons.close,
+              size: 25,
+            ),
+          ),
+        ),
+        10.heightBox,
+        "Cancel Ride".text.make(),
+      ],
     );
   }
 }

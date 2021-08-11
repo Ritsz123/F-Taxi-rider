@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _authToken;
   final String availableDriversPathInDB = "driversAvailable";
   BitmapDescriptor? _nearByCarIcon;
+  bool _tripAccepted = false;
 
   void createNearByIcon() {
     if(_nearByCarIcon != null) return;
@@ -194,6 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return RequestingRidePanel(
       requestingRideContainerHeight: requestingRideContainerHeight,
       onCancelRide: cancelRideRequestInDatabase,
+      tripAccepted: _tripAccepted,
     );
   }
 
@@ -473,6 +475,18 @@ class _HomeScreenState extends State<HomeScreen> {
     };
 
     rideRef.set(rideMap);
+
+    FirebaseDatabase.instance.reference().child('rideRequest').onChildRemoved.listen(
+      (event) {
+        if(event.snapshot.key == rideRef.key){
+          setState(() {
+            _tripAccepted = true;
+          });
+          logger.i('removed ride request from firebase');
+        }
+      }
+    );
+
   }
 
   void cancelRideRequestInDatabase() {
