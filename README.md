@@ -1,6 +1,6 @@
 # F - Taxi - Rider 🚗
 
-This Module is the part of complete project **F - Taxi**. 🚗
+This Module is the part of complete project [**F - Taxi**](https://github.com/Ritsz123/F-Taxi). 🚗
 <br> Developed using Flutter 📱 contains all Rider (end user) related functionalities such as:
 - User Login / Registration. 🔐
 - Searching for destination.
