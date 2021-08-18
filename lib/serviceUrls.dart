@@ -1,6 +1,6 @@
 library service_url;
 
-const String domain = 'http://192.168.1.102:5001/api';
+const String domain = 'http://192.168.1.103:5001/api';
 
 const String registerUser = '$domain/auth/rider/register';
 const String loginUser = '$domain/auth/rider/login';

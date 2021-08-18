@@ -97,7 +97,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         30.heightBox,
         TaxiButton(
-          onPressed: validateRegistration,
+          onPressed: registerUser,
           buttonText: "Register",
         ),
       ],
@@ -137,6 +137,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   void registerUser() async {
     final bool isFormValid = await validateRegistration();
     if(!isFormValid) return;
+
+    logger.i("making request to register user");
 
     try {
       Map<String, dynamic> response = await RequestHelper.postRequest(

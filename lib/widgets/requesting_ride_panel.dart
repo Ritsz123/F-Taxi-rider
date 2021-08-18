@@ -61,7 +61,7 @@ class RequestingRidePanel extends StatelessWidget {
   }
 
   Widget _cancelButton() {
-    return tripAccepted ? 'Trip Accepted\n The Driver is the way'.text.makeCentered() : Column(
+    return tripAccepted ? 'Trip Accepted\n The Driver is on the way'.text.makeCentered() : Column(
       children: [
         20.heightBox,
         GestureDetector(

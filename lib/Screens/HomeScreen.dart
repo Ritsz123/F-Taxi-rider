@@ -221,6 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
         withAuthToken: true,
       );
 
+      logger.i('fcm response $response');
+
       final String fcmToken = response['body']['fcmToken'];
 
       logger.i('new ride id : ${rideRef.key}');
@@ -456,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setupPositionLocator();
   }
 
-  void createRideRequestToDatabase() {
+  void createRideRequestToDatabase() async {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
     Address src = Provider.of<AppData>(context, listen: false).getPickUpAddress();
     Address dest = Provider.of<AppData>(context, listen: false).getDestinationAddress();
@@ -474,7 +476,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'driverId': 'waiting',
     };
 
-    rideRef.set(rideMap);
+    await rideRef.set(rideMap);
 
     FirebaseDatabase.instance.reference().child('rideRequest').onChildRemoved.listen(
       (event) {
